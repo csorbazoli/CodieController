@@ -1,0 +1,34 @@
+{ "extensionName": "Codie",
+  "extensionPort": 8080,
+  "blockSpecs": [
+	[" ", "Set speed: %d.percentMenu%", "DriveSpeed", 50],
+	[" ", "Set left speed: %d.percentMenu%", "DriveSpeedLeft", 50],
+	[" ", "Set right speed: %d.percentMenu%", "DriveSpeedRight", 50],
+	[" ", "Set color: %m.colorMenu", "LedSetColor", "green"],
+	
+	["w", "Drive: %n mm by speed %d.percentMenu%", "DriveDistanceBySpeed", 20, 50],
+	["w", "Drive: %n mm", "DriveDistance", 20],
+	["w", "Turn %d.degreeMenu degrees by speed %d.percentMenu%", "DriveTurn", 90, 50],
+	["w", "Beep %n ms", "SpeakBeep", 200],
+	
+	[" ", "Set sensor refresh: %d.refreshIntervalMenu ms on %m.sensorTypeMenu", "SetSensorRefreshInterval", 500, "all"],
+	["b", "LastResult", "lastResult"],
+	["r", "Left wheel (%)", "leftspeed"],
+	["r", "Right wheel (%)", "rightspeed"],
+	["r", "Refresh (ms)", "refreshInterval"],
+	
+	["r", "Sonar range (mm)", "sonarRange"],
+	["r", "Battery (%)", "batteryStateOfCharge"],
+	["r", "Light (0-4096)", "lightValue"],
+	["r", "Left line", "lineLeft"],
+	["r", "Right line", "lineRight"],
+	["r", "Mic (0-2048)", "micLevel"],
+  ],
+  "menus": {
+	"percentMenu": ["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"],
+	"degreeMenu": ["-180", "-150", "-135", "-120", "-90", "-60", "-45", "-30", "30", "45", "60", "90", "120", "135", "150", "180"],
+	"refreshIntervalMenu": ["0", "250", "500", "750", "1000"],
+	"sensorTypeMenu": ["allSensors", "batterySensor", "distanceSensor", "lightSensor", "lineSensor", "micSensor"],
+	"colorMenu": ["white", "green", "red", "blue", "cyan", "yellow", "orange"],
+  },
+}

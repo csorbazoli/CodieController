@@ -1,0 +1,119 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-03-22 06:16+0200\n"
+"PO-Revision-Date: 2016-03-22 06:16+0200\n"
+"Last-Translator: csorbazoli <csorbazoli@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: hu_HU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Pootle 2.5.1.1\n"
+"X-POOTLE-MTIME: 1440620211.000000\n"
+
+# Commands / parancsok
+msgid "Set speed: %d.percentMenu%"
+msgstr "Sebesség legyen %d.percentMenu%"
+
+msgid "Set left speed: %d.percentMenu%"
+msgstr "Bal kerék %d.percentMenu%"
+
+msgid "Set right speed: %d.percentMenu%"
+msgstr "Jobb kerék %d.percentMenu%"
+
+msgid "Set color: %m.colorMenu"
+msgstr "Szín legyen %m.colorMenu"
+
+	
+msgid "Drive: %n mm by speed %d.percentMenu%"
+msgstr "Menj %n mm-t %d.percentMenu% sebességgel"
+
+msgid "Drive: %n mm"
+msgstr "Menj %n mm-t"
+
+msgid "Turn %d.degreeMenu degrees by speed %d.percentMenu%"
+msgstr "Fordulj %n fokot %d.percentMenu% sebességgel"
+
+msgid "Beep %n ms"
+msgstr "Beep %n ms"
+
+	
+msgid "Set sensor refresh: %d.refreshIntervalMenu ms on %m.sensorTypeMenu"
+msgstr "Érzékelő frissítése: %d.refreshIntervalMenu ms %m.sensorTypeMenu"
+
+# Reporters / érzékelők
+msgid "LastResult"
+msgstr "Eredmény"
+
+msgid "Left wheel (%)"
+msgstr "Bal kerék (%)"
+
+msgid "Right wheel (%)"
+msgstr "Jobb kerék (%)"
+
+msgid "Refresh (ms)"
+msgstr "Frissítés (ms)"
+
+	
+msgid "Sonar range (mm)"
+msgstr "Távolság"
+
+msgid "Battery (%)"
+msgstr "Elem (%)"
+
+msgid "Light (0-4096)"
+msgstr "Fény (0-4096)"
+
+msgid "Left line"
+msgstr "Bal vonal"
+
+msgid "Right line"
+msgstr "Jobb vonal"
+
+msgid "Mic (0-2048)"
+msgstr "Mikrofon (0-2048)"
+
+
+# sensorTypeMenu / érzékelő típusok
+msgid "allSensors"
+msgstr "mindegyik"
+
+msgid "batterySensor"
+msgstr "elem"
+
+msgid "distanceSensor"
+msgstr "távolság"
+
+msgid "lightSensor"
+msgstr "fény"
+
+msgid "lineSensor"
+msgstr "vonal"
+
+msgid "micSensor"
+msgstr "mikrofon"
+
+# colorMenu / színek
+msgid "white"
+msgstr "fehér"
+
+msgid "green"
+msgstr "zöld"
+
+msgid "red"
+msgstr "piros"
+
+msgid "blue"
+msgstr "kék"
+
+msgid "cyan"
+msgstr "zöldeskék"
+
+msgid "yellow"
+msgstr "sárga"
+
+msgid "orange"
+msgstr "narancs"

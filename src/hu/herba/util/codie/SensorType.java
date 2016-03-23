@@ -9,9 +9,16 @@ package hu.herba.util.codie;
  */
 public enum SensorType {
 	all, //
-	microphone, //
-	line, //
-	light, //
-	battery, //
-	distance, //
+	// sensors
+	micLevel, //
+	lineLeft, //
+	lineRight, //
+	lightValue, //
+	batteryStateOfCharge, //
+	sonarRange, //
+	// reporters
+	leftSpeed, //
+	rightSpeed, //
+	lastResult, //
+	refreshInterval, //
 }

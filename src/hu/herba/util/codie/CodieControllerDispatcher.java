@@ -1,8 +1,5 @@
 package hu.herba.util.codie;
 
-import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
-import hu.herba.util.bluetooth.CodieConnectionException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
+import hu.herba.util.bluetooth.CodieConnectionException;
 
 /**
  * Servlet implementation class CodieControllerDispatcher
@@ -73,7 +73,8 @@ public class CodieControllerDispatcher extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	@Override
-	protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
+			throws ServletException, IOException {
 		String servletPath = request.getServletPath().substring(1);
 		// LOGGER.info(request.getContextPath() + ", request = " + servletPath);
 		PrintWriter out = response.getWriter();
@@ -103,7 +104,11 @@ public class CodieControllerDispatcher extends HttpServlet {
 
 	private void pollRequest(final PrintWriter out) {
 		out.append("CodieController 1.0\n");
-		// out.append("_problem NOT CONNECTED");
+		if (conn == null) {
+			out.append("_problem NOT CONNECTED");
+		} else {
+			CodieCommandProcessor.getInstance().providePollInfo(out);
+		}
 	}
 
 	private void sendCrossDomainXml(final HttpServletResponse response, final PrintWriter out) throws IOException {
@@ -144,7 +149,8 @@ public class CodieControllerDispatcher extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	@Override
-	protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
+			throws ServletException, IOException {
 		doGet(request, response);
 	}
 

@@ -3,10 +3,6 @@
  */
 package hu.herba.util.codie;
 
-import hu.herba.util.codie.commands.ble.BLEEchoCommand;
-import hu.herba.util.codie.commands.mcu.MCUEchoCommand;
-import hu.herba.util.codie.commands.mcu.NullCommand;
-
 import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.Map;
@@ -16,6 +12,10 @@ import java.util.TreeSet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.codie.commands.ble.BLEEchoCommand;
+import hu.herba.util.codie.commands.mcu.MCUEchoCommand;
+import hu.herba.util.codie.commands.mcu.NullCommand;
 
 /**
  * Process handler class for Codie commands triggered by Scratch.
@@ -29,6 +29,7 @@ public class CodieCommandProcessor {
 
 	private final Map<String, CodieCommand> commands = new TreeMap<>();
 	private final Set<Integer> busyCommands = Collections.synchronizedSet(new TreeSet<Integer>());
+	private boolean lastResult;
 
 	private CodieCommandProcessor() {
 		initCommands();
@@ -98,16 +99,23 @@ public class CodieCommandProcessor {
 		if (command.isWait()) {
 
 		}
-		if (uniqueCommandId != null) {
-			busyCommands.add(uniqueCommandId);
-		}
+		commandStarted(command, uniqueCommandId);
 		try {
 			command.process(this, parts);
+			setLastResult(true);
+		} catch (CodieCommandException e) {
+			LOGGER.warn("Failed to process Codie command: " + e.getMessage(), e);
+			setLastResult(false);
 		} finally {
-			if (uniqueCommandId != null) {
-				busyCommands.remove(uniqueCommandId);
-			}
+			commandFinished(command, uniqueCommandId);
 		}
+	}
+
+	/**
+	 * @param b
+	 */
+	private void setLastResult(final boolean b) {
+		lastResult = b;
 	}
 
 	private String getCommandName(final String[] parts) {
@@ -152,15 +160,21 @@ public class CodieCommandProcessor {
 		for (Map.Entry<SensorType, String> sensorValue : CodieSensorPollService.getInstance().getSensorValues()) {
 			out.println(sensorValue.getKey().name() + " " + sensorValue.getValue());
 		}
+
+		out.println("lastResult " + lastResult);
 	}
 
-	public void commandStarted(final CodieCommandBase command, final int msgId) {
-		LOGGER.debug("Command " + command.getName() + " started: " + msgId);
-		busyCommands.add(msgId);
+	public void commandStarted(final CodieCommandBase command, final Integer uniqueCommandId) {
+		LOGGER.debug("Command " + command.getName() + " started " + (uniqueCommandId != null ? uniqueCommandId : ""));
+		if (uniqueCommandId != null) {
+			busyCommands.add(uniqueCommandId);
+		}
 	}
 
-	public void commandFinished(final CodieCommandBase command, final int msgId) {
-		LOGGER.debug("Command " + command.getName() + " finished: " + msgId);
-		busyCommands.remove(msgId);
+	public void commandFinished(final CodieCommandBase command, final Integer uniqueCommandId) {
+		LOGGER.debug("Command " + command.getName() + " finished " + (uniqueCommandId != null ? uniqueCommandId : ""));
+		if (uniqueCommandId != null) {
+			busyCommands.remove(uniqueCommandId);
+		}
 	}
 }

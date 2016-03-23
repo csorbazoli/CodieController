@@ -3,10 +3,11 @@
  */
 package hu.herba.util.codie.sensors.mcu;
 
-import hu.herba.util.codie.SensorValueStore;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.codie.SensorType;
+import hu.herba.util.codie.SensorValueStore;
 
 /**
  * ID: 0x1069<br/>
@@ -44,6 +45,7 @@ public class BatteryGetSocSensor extends MCUSensor {
 	@Override
 	public void poll(final SensorValueStore sensorValueStore) {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
+		sensorValueStore.updateSensorValue(SensorType.batteryStateOfCharge, 100);
 	}
 
 	@Override

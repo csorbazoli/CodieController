@@ -3,12 +3,6 @@
  */
 package hu.herba.util.codie;
 
-import hu.herba.util.codie.sensors.mcu.BatteryGetSocSensor;
-import hu.herba.util.codie.sensors.mcu.LightSenseGetRawSensor;
-import hu.herba.util.codie.sensors.mcu.LineGetRawSensor;
-import hu.herba.util.codie.sensors.mcu.MicGetRawSensor;
-import hu.herba.util.codie.sensors.mcu.SonarGetRangeSensor;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +10,12 @@ import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.codie.sensors.mcu.BatteryGetSocSensor;
+import hu.herba.util.codie.sensors.mcu.LightSenseGetRawSensor;
+import hu.herba.util.codie.sensors.mcu.LineGetRawSensor;
+import hu.herba.util.codie.sensors.mcu.MicGetRawSensor;
+import hu.herba.util.codie.sensors.mcu.SonarGetRangeSensor;
 
 /**
  * This service polls for sensor values in a specified (and modifiable) refresh interval.
@@ -126,7 +126,8 @@ public class CodieSensorPollService implements SensorValueStore {
 	 */
 	public void setTimerInterval(final SensorType sensorType, final int interval) {
 		if (interval < 100) {
-			LOGGER.warn("Refresh interval for sensors should not be less the 100ms! (requested value was: " + interval + ")");
+			LOGGER.warn("Refresh interval for sensors should not be less the 100ms! (requested value was: " + interval
+					+ ")");
 		}
 		switch (sensorType) {
 		case all:
@@ -136,19 +137,20 @@ public class CodieSensorPollService implements SensorValueStore {
 			setTimer(MicGetRawSensor.getInstance(), interval);
 			setTimer(SonarGetRangeSensor.getInstance(), interval);
 			break;
-		case battery:
+		case batteryStateOfCharge:
 			setTimer(BatteryGetSocSensor.getInstance(), interval);
 			break;
-		case distance:
+		case sonarRange:
 			setTimer(SonarGetRangeSensor.getInstance(), interval);
 			break;
-		case light:
+		case lightValue:
 			setTimer(LightSenseGetRawSensor.getInstance(), interval);
 			break;
-		case line:
+		case lineLeft:
+		case lineRight:
 			setTimer(LineGetRawSensor.getInstance(), interval);
 			break;
-		case microphone:
+		case micLevel:
 			setTimer(MicGetRawSensor.getInstance(), interval);
 			break;
 		default:

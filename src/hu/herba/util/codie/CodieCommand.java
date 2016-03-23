@@ -7,7 +7,7 @@ package hu.herba.util.codie;
  * @author csorbazoli
  */
 public interface CodieCommand extends CodieCommandBase {
-	void process(CodieCommandProcessor codieCommandProcessor, String[] commandParts);
+	void process(CodieCommandProcessor codieCommandProcessor, String[] commandParts) throws CodieCommandException;
 
 	/**
 	 * @return true if Command is 'wait' type, which means it waits until the command is processed fully by Codie robot.

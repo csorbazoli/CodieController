@@ -5,96 +5,89 @@ package hu.herba.util.codie;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Scanner;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 
 /**
  * @author csorbazoli
  *
  */
-public class CodieControllerServer implements Runnable, Executor {
-	private static final Logger LOGGER = LogManager.getLogger(CodieControllerServer.class);
-
+public class CodieControllerThreadPooledServer implements Runnable {
+	private static final Logger LOGGER = LogManager.getLogger(CodieControllerThreadPooledServer.class);
 	private static final int LISTEN_PORT = 9123;
 	private static final int POOL_SIZE = 10;
 
-	private CodieControllerDispatcher dispatcher;
+	protected ServerSocket serverSocket = null;
+	protected boolean isStopped = false;
+	protected Thread runningThread = null;
 	protected final ExecutorService threadPool;
 
+	private CodieControllerDispatcher dispatcher;
 	private final int port;
-	private final int poolSize;
 
 	/**
 	 * @param listenPort
-	 * @param maxThreads
+	 * @param poolSize TODO
 	 */
-	public CodieControllerServer(int listenPort, int maxThreads) {
+	public CodieControllerThreadPooledServer(int listenPort, int poolSize) {
 		port = listenPort;
-		poolSize = maxThreads;
 		threadPool = Executors.newFixedThreadPool(poolSize);
 	}
 
-	@Override
-	public void execute(Runnable command) {
-		threadPool.execute(command);
-	}
+	private class CodieCommandHandler implements Runnable {
 
-	private class CodieCommandHandler implements HttpHandler {
+		protected Socket clientSocket = null;
+
+		public CodieCommandHandler(Socket clientSocket) {
+			this.clientSocket = clientSocket;
+		}
 
 		@Override
-		public void handle(final HttpExchange t) throws IOException {
-			String servletPath = t.getRequestURI().toString();
+		public void run() {
 			long start = System.currentTimeMillis();
-			readInput(t);
-			switch (t.getRequestMethod()) {
-			case "GET":
-				LOGGER.trace("GET " + servletPath);
-				Headers h = t.getResponseHeaders();
-				// setting the content type is not required!
-				// h.add("Content-Type", "text/plain");
-				h.add("Server", "Apache-Coyote/1.1");
+			String servletPath = "poll";
+			try {
+				InputStream input = clientSocket.getInputStream();
+				OutputStream output = clientSocket.getOutputStream();
+				long time = System.currentTimeMillis();
 				StringWriter sw = new StringWriter();
 				dispatcher.handleRequest(servletPath, sw);
 				LOGGER.trace("DONE " + servletPath);
-				writeOutput(t, sw.getBuffer().toString());
-				break;
-			default:
-				LOGGER.warn("Unhandled request method: " + t.getRequestMethod() + " using " + t.getProtocol() + " on " + t.getRequestURI());
-				t.getResponseBody().close();
+				writeOutput(output, sw.getBuffer().toString());
+				input.close();
+				System.out.println("Request processed: " + time);
+			} catch (IOException e) {
+				LOGGER.error("Failed to process request: " + e.getMessage(), e);
 			}
-			LOGGER.trace(servletPath + ": " + (System.currentTimeMillis() - start) + "ms");
+			LOGGER.debug(servletPath + ": " + (System.currentTimeMillis() - start) + "ms");
 		}
 
 		/**
 		 * @param bytes
 		 * @throws IOException
 		 */
-		private void writeOutput(final HttpExchange t, final String response) throws IOException {
-			t.sendResponseHeaders(200, 0); //response.length());
-			OutputStream os = t.getResponseBody();
+		private void writeOutput(OutputStream output, final String response) throws IOException {
+			output.write("HTTP/1.1 200 OK\n\n".getBytes());
 			try {
-				os.write(response.getBytes());
-				os.flush();
+				output.write(response.getBytes());
+				output.flush();
 			} catch (IOException e) {
 				LOGGER.error("Failed to write output: " + response, e);
 			} finally {
 				try {
-					os.close();
-					t.getRequestBody().close();
+					output.close();
 				} catch (IOException e) {
 					LOGGER.error("Failed to close output: " + e.getMessage(), e);
 				}
@@ -122,7 +115,7 @@ public class CodieControllerServer implements Runnable, Executor {
 	}
 
 	public static void main(final String[] args) {
-		CodieControllerServer codieControllerServer = new CodieControllerServer(LISTEN_PORT, POOL_SIZE);
+		CodieControllerThreadPooledServer codieControllerServer = new CodieControllerThreadPooledServer(LISTEN_PORT, POOL_SIZE);
 		new Thread(codieControllerServer).start();
 		Scanner scan = new Scanner(System.in);
 		while (scan.hasNextLine()) {
@@ -151,17 +144,41 @@ public class CodieControllerServer implements Runnable, Executor {
 
 	@Override
 	public void run() {
-		HttpServer server;
+		synchronized (this) {
+			runningThread = Thread.currentThread();
+		}
+		LOGGER.info("CodieController server starting...");
+		initDispatcher();
+		openServerSocket();
+		LOGGER.info("CodieController server is started and listening on port " + getPort());
+		while (!isStopped()) {
+			Socket clientSocket = null;
+			try {
+				clientSocket = serverSocket.accept();
+			} catch (IOException e) {
+				if (isStopped()) {
+					System.out.println("Server Stopped.");
+					break;
+				}
+				throw new RuntimeException("Error accepting client connection", e);
+			}
+			threadPool.execute(new CodieCommandHandler(clientSocket));
+		}
+		threadPool.shutdown();
+		System.out.println("Server Stopped.");
+
+		// server.createContext("/", new CodieCommandHandler());
+	}
+
+	private synchronized boolean isStopped() {
+		return isStopped;
+	}
+
+	private void openServerSocket() {
 		try {
-			LOGGER.info("CodieController server starting...");
-			initDispatcher();
-			server = HttpServer.create(new InetSocketAddress(getPort()), 10);
-			server.createContext("/", new CodieCommandHandler());
-			server.setExecutor(this);
-			server.start();
-			LOGGER.info("CodieController server is started and listening on port " + getPort());
+			serverSocket = new ServerSocket(port);
 		} catch (IOException e) {
-			LOGGER.error("Failed to start HTTP server on port " + getPort(), e);
+			throw new RuntimeException("Cannot open port " + port, e);
 		}
 	}
 

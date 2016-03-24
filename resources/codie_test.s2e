@@ -1,5 +1,5 @@
 { "extensionName": "Codie",
-  "extensionPort": 8080,
+  "extensionPort": 9123,
   "blockSpecs": [
 	[" ", "Set speed: %d.percentMenu%", "DriveSpeed", 50],
 	[" ", "Set left speed: %d.percentMenu%", "DriveSpeedLeft", 50],

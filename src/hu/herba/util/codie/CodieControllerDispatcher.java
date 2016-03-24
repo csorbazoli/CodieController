@@ -1,5 +1,7 @@
 package hu.herba.util.codie;
 
+import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,9 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
-import hu.herba.util.bluetooth.CodieConnectionException;
-
 /**
  * Servlet implementation class CodieControllerDispatcher
  */
@@ -29,10 +28,8 @@ import hu.herba.util.bluetooth.CodieConnectionException;
 public class CodieControllerDispatcher extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = LogManager.getLogger(CodieControllerDispatcher.class);
-	private static final long RETRY_TIMEOUT = 1000; // retry timeout in milliseconds for a failed connection
 
 	private Object conn;
-	private long lastConnectionFailure;
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -52,30 +49,19 @@ public class CodieControllerDispatcher extends HttpServlet {
 
 	private void initConnection() {
 		// initialize connection to Codie
-		if (conn == null && retryTimeout()) {
-			try {
-				conn = CodieBluetoothConnectionFactory.connect();
+		if (conn == null) {
+			conn = CodieBluetoothConnectionFactory.connect();
+			if (conn != null) {
 				CodieSensorPollService.getInstance().resetTimers(conn);
-			} catch (CodieConnectionException e) {
-				LOGGER.warn("Failed to connect to Codie: " + e.getMessage());
-			} finally {
-				if (conn == null) {
-					lastConnectionFailure = System.currentTimeMillis();
-				}
 			}
 		}
-	}
-
-	private boolean retryTimeout() {
-		return System.currentTimeMillis() - lastConnectionFailure > RETRY_TIMEOUT;
 	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	@Override
-	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
-			throws ServletException, IOException {
+	protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		// LOGGER.info(request.getContextPath() + ", request = " + servletPath);
 		PrintWriter out = response.getWriter();
 		handleRequest(request.getServletPath(), out);
@@ -83,7 +69,7 @@ public class CodieControllerDispatcher extends HttpServlet {
 
 	public void handleRequest(final String servletPath, final Writer out) throws IOException {
 		String uri = servletPath.startsWith("/") ? servletPath.substring(1) : servletPath;
-		LOGGER.debug("URI:" + uri);
+		LOGGER.trace("URI:" + uri);
 		switch (uri) {
 		case "crossdomain.xml":
 			sendCrossDomainXml(out);
@@ -159,8 +145,7 @@ public class CodieControllerDispatcher extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	@Override
-	protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
-			throws ServletException, IOException {
+	protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
 

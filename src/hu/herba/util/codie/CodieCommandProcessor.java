@@ -3,7 +3,8 @@
  */
 package hu.herba.util.codie;
 
-import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,9 @@ import org.apache.logging.log4j.Logger;
 import hu.herba.util.codie.commands.ble.BLEEchoCommand;
 import hu.herba.util.codie.commands.mcu.MCUEchoCommand;
 import hu.herba.util.codie.commands.mcu.NullCommand;
+import hu.herba.util.codie.model.CodieCommand;
+import hu.herba.util.codie.model.CodieCommandBase;
+import hu.herba.util.codie.model.SensorType;
 
 /**
  * Process handler class for Codie commands triggered by Scratch.
@@ -75,8 +79,8 @@ public class CodieCommandProcessor {
 
 	}
 
-	public void handleCommand(final PrintWriter out, final String commandDetails) {
-		out.append("Request = " + commandDetails);
+	public void handleCommand(final Writer out, final String commandDetails) throws IOException {
+		out.append("Request = " + commandDetails + "\n");
 		String[] parts = commandDetails.split("/");
 		if (parts.length > 0 && !getCommandName(parts).isEmpty()) {
 			String commandName = getCommandName(parts);
@@ -136,8 +140,9 @@ public class CodieCommandProcessor {
 	 *
 	 * @param out
 	 *            writes _busy and sensor info to this print writer
+	 * @throws IOException
 	 */
-	public void providePollInfo(final PrintWriter out) {
+	public void providePollInfo(final Writer out) throws IOException {
 		// list of busy commands (commands that wait until a given action completes, i.e. type "w" commands)
 		// _busy <msgid> ...
 		// e.g. _busy 1427 1511 1600
@@ -147,7 +152,7 @@ public class CodieCommandProcessor {
 				busyInfo.append(' ').append(msgId);
 			}
 			if (busyInfo.length() > 5) {
-				out.println(busyInfo.toString());
+				out.append(busyInfo.toString()).append('\n');
 			}
 		}
 
@@ -158,10 +163,10 @@ public class CodieCommandProcessor {
 		// sensor values could be updated by AppCommands where Codie sends info about the state
 		// or normal commands which affects the state of Codie (e.g. moves codie which means the speed is changing)
 		for (Map.Entry<SensorType, String> sensorValue : CodieSensorPollService.getInstance().getSensorValues()) {
-			out.println(sensorValue.getKey().name() + " " + sensorValue.getValue());
+			out.append(sensorValue.getKey().name() + " " + sensorValue.getValue() + "\n");
 		}
 
-		out.println("lastResult " + lastResult);
+		out.append("lastResult " + lastResult + "\n");
 	}
 
 	public void commandStarted(final CodieCommandBase command, final Integer uniqueCommandId) {

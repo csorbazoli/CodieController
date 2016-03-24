@@ -6,8 +6,8 @@ package hu.herba.util.codie.sensors.mcu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.herba.util.codie.SensorType;
 import hu.herba.util.codie.SensorValueStore;
+import hu.herba.util.codie.model.SensorType;
 
 /**
  * ID: 0x1069<br/>

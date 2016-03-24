@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -75,12 +76,17 @@ public class CodieControllerDispatcher extends HttpServlet {
 	@Override
 	protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
 			throws ServletException, IOException {
-		String servletPath = request.getServletPath().substring(1);
 		// LOGGER.info(request.getContextPath() + ", request = " + servletPath);
 		PrintWriter out = response.getWriter();
-		switch (servletPath) {
+		handleRequest(request.getServletPath(), out);
+	}
+
+	public void handleRequest(final String servletPath, final Writer out) throws IOException {
+		String uri = servletPath.startsWith("/") ? servletPath.substring(1) : servletPath;
+		LOGGER.debug("URI:" + uri);
+		switch (uri) {
 		case "crossdomain.xml":
-			sendCrossDomainXml(response, out);
+			sendCrossDomainXml(out);
 			break;
 		case "reset_all":
 			resetDevice();
@@ -90,19 +96,27 @@ public class CodieControllerDispatcher extends HttpServlet {
 			pollRequest(out);
 			break;
 		default:
-			if (servletPath.indexOf('.') != -1) {
-				sendFile(response, servletPath);
+			if (uri.indexOf('.') != -1) {
+				sendFile(out, uri);
 			} else {
-				CodieCommandProcessor.getInstance().handleCommand(out, servletPath);
+				CodieCommandProcessor.getInstance().handleCommand(out, uri);
 			}
 		}
 	}
 
 	private void resetDevice() {
 		LOGGER.info("TODO need to reset connection to Codie");
+		CodieSensorPollService.getInstance().cancelTimers();
 	}
 
-	private void pollRequest(final PrintWriter out) {
+	@Override
+	protected void finalize() throws Throwable {
+		LOGGER.info("Shutdown codie controller...");
+		CodieSensorPollService.getInstance().cancelTimers();
+		super.finalize();
+	}
+
+	private void pollRequest(final Writer out) throws IOException {
 		out.append("CodieController 1.0\n");
 		if (conn == null) {
 			out.append("_problem NOT CONNECTED");
@@ -111,24 +125,24 @@ public class CodieControllerDispatcher extends HttpServlet {
 		}
 	}
 
-	private void sendCrossDomainXml(final HttpServletResponse response, final PrintWriter out) throws IOException {
-		sendFile(response, "crossdomain.xml");
+	private void sendCrossDomainXml(final Writer out) throws IOException {
+		sendFile(out, "crossdomain.xml");
 		out.append((char) 0x00);
 	}
 
-	private void sendFile(final HttpServletResponse response, final String fileName) throws IOException {
-		PrintWriter out = response.getWriter();
+	private void sendFile(final Writer out, final String fileName) throws IOException {
 		BufferedReader reader = null;
 		try {
-			LOGGER.info("Open file: " + fileName);
-			InputStream is = this.getClass().getResourceAsStream(fileName);
+			LOGGER.debug("Open file: " + fileName);
+			InputStream is = this.getClass().getResourceAsStream(fileName.startsWith("/") ? fileName : "/" + fileName);
 			if (is == null) {
 				out.append("File not found: " + fileName + "!");
+				LOGGER.error("File not found: " + fileName + "!");
 			} else {
 				reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 				String line;
 				while ((line = reader.readLine()) != null) {
-					out.println(line);
+					out.append(line).append('\n');
 				}
 			}
 		} catch (UnsupportedEncodingException e) {
@@ -139,10 +153,6 @@ public class CodieControllerDispatcher extends HttpServlet {
 			}
 		}
 
-	}
-
-	private void append(final HttpServletResponse response, final String line) throws IOException {
-		response.getWriter().append(line);
 	}
 
 	/**

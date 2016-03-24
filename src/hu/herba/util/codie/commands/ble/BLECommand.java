@@ -3,7 +3,7 @@
  */
 package hu.herba.util.codie.commands.ble;
 
-import hu.herba.util.codie.AbstractCodieCommand;
+import hu.herba.util.codie.model.AbstractCodieCommand;
 
 /**
  * BLE commands can be executed only on the BLE module.

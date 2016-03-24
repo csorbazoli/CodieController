@@ -5,6 +5,8 @@ package hu.herba.util.codie;
 
 import java.util.Timer;
 
+import hu.herba.util.codie.model.CodieSensor;
+
 /**
  * Timer for refreshing sensor value
  *

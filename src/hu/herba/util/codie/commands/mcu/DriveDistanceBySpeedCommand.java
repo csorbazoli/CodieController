@@ -8,8 +8,8 @@ import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.CodieCommandProcessor;
 import hu.herba.util.codie.CodieSensorPollService;
-import hu.herba.util.codie.SensorType;
 import hu.herba.util.codie.SensorValueStore;
+import hu.herba.util.codie.model.SensorType;
 
 /**
  * Set motor speeds to the given value in percents (0-100%).

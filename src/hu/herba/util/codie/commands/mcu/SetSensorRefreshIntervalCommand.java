@@ -5,7 +5,7 @@ package hu.herba.util.codie.commands.mcu;
 
 import hu.herba.util.codie.CodieCommandProcessor;
 import hu.herba.util.codie.CodieSensorPollService;
-import hu.herba.util.codie.SensorType;
+import hu.herba.util.codie.model.SensorType;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,7 +1,10 @@
 /**
  *
  */
-package hu.herba.util.codie;
+package hu.herba.util.codie.model;
+
+import hu.herba.util.codie.CodieCommandException;
+import hu.herba.util.codie.CodieCommandProcessor;
 
 /**
  * @author csorbazoli

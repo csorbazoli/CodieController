@@ -11,6 +11,8 @@ import java.util.TreeMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import hu.herba.util.codie.model.CodieSensor;
+import hu.herba.util.codie.model.SensorType;
 import hu.herba.util.codie.sensors.mcu.BatteryGetSocSensor;
 import hu.herba.util.codie.sensors.mcu.LightSenseGetRawSensor;
 import hu.herba.util.codie.sensors.mcu.LineGetRawSensor;
@@ -41,6 +43,13 @@ public class CodieSensorPollService implements SensorValueStore {
 	private CodieSensorPollService() {
 		// private constructor
 		initSensors();
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		LOGGER.info("Shutdown timers...");
+		cancelTimers();
+		super.finalize();
 	}
 
 	@Override

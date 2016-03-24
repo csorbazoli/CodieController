@@ -3,7 +3,7 @@
  */
 package hu.herba.util.codie.commands.mcu;
 
-import hu.herba.util.codie.AbstractCodieCommand;
+import hu.herba.util.codie.model.AbstractCodieCommand;
 
 /**
  * MCU commands can be executed only on the MCU.

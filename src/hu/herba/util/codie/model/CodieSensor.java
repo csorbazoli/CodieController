@@ -1,7 +1,9 @@
 /**
  *
  */
-package hu.herba.util.codie;
+package hu.herba.util.codie.model;
+
+import hu.herba.util.codie.SensorValueStore;
 
 /**
  * @author csorbazoli

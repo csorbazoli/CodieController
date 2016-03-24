@@ -3,7 +3,7 @@
  */
 package hu.herba.util.codie.commands.app;
 
-import hu.herba.util.codie.AbstractCodieCommand;
+import hu.herba.util.codie.model.AbstractCodieCommand;
 
 /**
  * App commands can be executed by the client application.

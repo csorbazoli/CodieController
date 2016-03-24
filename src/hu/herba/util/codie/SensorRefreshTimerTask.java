@@ -5,6 +5,8 @@ package hu.herba.util.codie;
 
 import java.util.TimerTask;
 
+import hu.herba.util.codie.model.CodieSensor;
+
 /**
  * Single timed task for updating a sensor value
  *

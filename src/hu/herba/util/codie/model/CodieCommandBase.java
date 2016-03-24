@@ -1,7 +1,7 @@
 /**
  *
  */
-package hu.herba.util.codie;
+package hu.herba.util.codie.model;
 
 /**
  * @author Zoltán

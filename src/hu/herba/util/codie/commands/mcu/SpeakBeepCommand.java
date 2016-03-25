@@ -3,10 +3,10 @@
  */
 package hu.herba.util.codie.commands.mcu;
 
-import hu.herba.util.codie.CodieCommandProcessor;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.codie.CodieCommandProcessor;
 
 /**
  * ID: 0x1064<br/>
@@ -36,11 +36,16 @@ public class SpeakBeepCommand extends MCUCommand {
 
 	@Override
 	public String getName() {
-		return "SpeakBeap";
+		return "SpeakBeep";
 	}
 
 	@Override
 	public boolean isWait() {
 		return true;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
 	}
 }

@@ -60,4 +60,8 @@ public class LineGetRawSensor extends MCUSensor {
 		return "lineLeft|lineRight";
 	}
 
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
+	}
 }

@@ -46,7 +46,7 @@ public class MicGetRawSensor extends MCUSensor {
 	@Override
 	public void poll(final SensorValueStore sensorValueStore) {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
-		sensorValueStore.updateSensorValue(SensorType.micLevel, 46);
+		sensorValueStore.updateSensorValue(SensorType.micSensor, 46);
 	}
 
 	@Override
@@ -59,4 +59,8 @@ public class MicGetRawSensor extends MCUSensor {
 		return "micLevel";
 	}
 
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
+	}
 }

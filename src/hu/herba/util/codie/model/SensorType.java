@@ -4,21 +4,37 @@
 package hu.herba.util.codie.model;
 
 /**
- * @author Zoltán
+ * @author Zoltï¿½n
  *
  */
 public enum SensorType {
-	all, //
+	allSensors, //
 	// sensors
-	micLevel, //
+	micSensor("micLevel"), //
+	lineSensor, //
+	lightSensor("lightValue"), //
+	batterySensor("batteryStateOfCharge"), //
+	distanceSensor("sonarRange"), //
+	// reporters
 	lineLeft, //
 	lineRight, //
-	lightValue, //
-	batteryStateOfCharge, //
-	sonarRange, //
-	// reporters
 	leftSpeed, //
 	rightSpeed, //
 	lastResult, //
 	refreshInterval, //
+	;
+
+	private final String sensorName;
+
+	private SensorType() {
+		sensorName = name();
+	}
+
+	private SensorType(final String sensorName) {
+		this.sensorName = sensorName;
+	}
+
+	public String getSensorName() {
+		return sensorName;
+	}
 }

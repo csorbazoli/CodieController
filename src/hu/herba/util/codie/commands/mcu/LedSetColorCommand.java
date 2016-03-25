@@ -3,10 +3,10 @@
  */
 package hu.herba.util.codie.commands.mcu;
 
-import hu.herba.util.codie.CodieCommandProcessor;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.codie.CodieCommandProcessor;
 
 /**
  * ID: 0x1065<br/>
@@ -39,4 +39,8 @@ public class LedSetColorCommand extends MCUCommand {
 		return "LedSetColor";
 	}
 
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
+	}
 }

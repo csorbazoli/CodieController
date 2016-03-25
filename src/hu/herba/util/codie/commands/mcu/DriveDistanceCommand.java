@@ -3,10 +3,10 @@
  */
 package hu.herba.util.codie.commands.mcu;
 
-import hu.herba.util.codie.CodieCommandProcessor;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.codie.CodieCommandProcessor;
 
 /**
  * Set motor speeds to the given value in percents (0-100%).
@@ -27,7 +27,8 @@ public class DriveDistanceCommand extends MCUCommand {
 
 	@Override
 	public void process(final CodieCommandProcessor codieCommandProcessor, final String[] commandParts) {
-		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
+		int distance = getIntParam(commandParts, 1, 5);
+		LOGGER.info("Drive " + distance + " cm...");
 	}
 
 	@Override
@@ -45,4 +46,8 @@ public class DriveDistanceCommand extends MCUCommand {
 		return true;
 	}
 
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
+	}
 }

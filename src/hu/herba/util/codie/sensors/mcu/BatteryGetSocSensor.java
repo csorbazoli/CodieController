@@ -45,7 +45,7 @@ public class BatteryGetSocSensor extends MCUSensor {
 	@Override
 	public void poll(final SensorValueStore sensorValueStore) {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
-		sensorValueStore.updateSensorValue(SensorType.batteryStateOfCharge, 100);
+		sensorValueStore.updateSensorValue(SensorType.batterySensor, 100);
 	}
 
 	@Override
@@ -56,6 +56,11 @@ public class BatteryGetSocSensor extends MCUSensor {
 	@Override
 	public String getName() {
 		return "batteryStateOfCharge";
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
 	}
 
 }

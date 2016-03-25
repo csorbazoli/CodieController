@@ -97,6 +97,20 @@ public class CodieSensorPollService implements SensorValueStore {
 	}
 
 	@Override
+	public int getSensorValueInt(final SensorType sensor) {
+		int ret = 0;
+		String strVal = sensorValues.get(sensor);
+		if (strVal != null) {
+			try {
+				ret = Integer.parseInt(strVal);
+			} catch (NumberFormatException e) {
+				LOGGER.warn(sensor + " value should be an integer: '" + strVal + "'", e);
+			}
+		}
+		return ret;
+	}
+
+	@Override
 	public void updateSensorValue(final SensorType sensor, final Object value) {
 		sensorValues.put(sensor, String.valueOf(value));
 	}
@@ -139,27 +153,27 @@ public class CodieSensorPollService implements SensorValueStore {
 					+ ")");
 		}
 		switch (sensorType) {
-		case all:
+		case allSensors:
 			setTimer(BatteryGetSocSensor.getInstance(), interval);
 			setTimer(LightSenseGetRawSensor.getInstance(), interval);
 			setTimer(LineGetRawSensor.getInstance(), interval);
 			setTimer(MicGetRawSensor.getInstance(), interval);
 			setTimer(SonarGetRangeSensor.getInstance(), interval);
 			break;
-		case batteryStateOfCharge:
+		case batterySensor:
 			setTimer(BatteryGetSocSensor.getInstance(), interval);
 			break;
-		case sonarRange:
+		case distanceSensor:
 			setTimer(SonarGetRangeSensor.getInstance(), interval);
 			break;
-		case lightValue:
+		case lightSensor:
 			setTimer(LightSenseGetRawSensor.getInstance(), interval);
 			break;
 		case lineLeft:
 		case lineRight:
 			setTimer(LineGetRawSensor.getInstance(), interval);
 			break;
-		case micLevel:
+		case micSensor:
 			setTimer(MicGetRawSensor.getInstance(), interval);
 			break;
 		default:

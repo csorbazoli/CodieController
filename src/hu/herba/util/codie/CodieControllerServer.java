@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
-import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,14 +41,14 @@ public class CodieControllerServer implements Runnable, Executor {
 	 * @param listenPort
 	 * @param maxThreads
 	 */
-	public CodieControllerServer(int listenPort, int maxThreads) {
+	public CodieControllerServer(final int listenPort, final int maxThreads) {
 		port = listenPort;
 		poolSize = maxThreads;
 		threadPool = Executors.newFixedThreadPool(poolSize);
 	}
 
 	@Override
-	public void execute(Runnable command) {
+	public void execute(final Runnable command) {
 		threadPool.execute(command);
 	}
 
@@ -73,7 +72,8 @@ public class CodieControllerServer implements Runnable, Executor {
 				writeOutput(t, sw.getBuffer().toString());
 				break;
 			default:
-				LOGGER.warn("Unhandled request method: " + t.getRequestMethod() + " using " + t.getProtocol() + " on " + t.getRequestURI());
+				LOGGER.warn("Unhandled request method: " + t.getRequestMethod() + " using " + t.getProtocol() + " on "
+						+ t.getRequestURI());
 				t.getResponseBody().close();
 			}
 			LOGGER.trace(servletPath + ": " + (System.currentTimeMillis() - start) + "ms");
@@ -84,7 +84,7 @@ public class CodieControllerServer implements Runnable, Executor {
 		 * @throws IOException
 		 */
 		private void writeOutput(final HttpExchange t, final String response) throws IOException {
-			t.sendResponseHeaders(200, 0); //response.length());
+			t.sendResponseHeaders(200, 0); // response.length());
 			OutputStream os = t.getResponseBody();
 			try {
 				os.write(response.getBytes());
@@ -124,29 +124,7 @@ public class CodieControllerServer implements Runnable, Executor {
 	public static void main(final String[] args) {
 		CodieControllerServer codieControllerServer = new CodieControllerServer(LISTEN_PORT, POOL_SIZE);
 		new Thread(codieControllerServer).start();
-		Scanner scan = new Scanner(System.in);
-		while (scan.hasNextLine()) {
-			String readLine = scan.nextLine();
-			if ("q".equalsIgnoreCase(readLine) || "quit".equalsIgnoreCase(readLine) || "exit".equalsIgnoreCase(readLine)) {
-				scan.close();
-				codieControllerServer.stop();
-			} else {
-				printUsage();
-			}
-		}
-	}
-
-	private static void printUsage() {
-		System.out.println();
-		System.out.println("Type quit to stop the server");
-	}
-
-	/**
-	 *
-	 */
-	private void stop() {
-		LOGGER.info("CodieController server is stopping...");
-		System.exit(0);
+		UserInputProcessor.getInstance().scan();
 	}
 
 	@Override

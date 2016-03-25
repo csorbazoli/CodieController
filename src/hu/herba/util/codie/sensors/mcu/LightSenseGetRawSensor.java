@@ -46,7 +46,7 @@ public class LightSenseGetRawSensor extends MCUSensor {
 	@Override
 	public void poll(final SensorValueStore sensorValueStore) {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
-		sensorValueStore.updateSensorValue(SensorType.lightValue, 2048);
+		sensorValueStore.updateSensorValue(SensorType.lightSensor, 2048);
 	}
 
 	@Override
@@ -59,4 +59,8 @@ public class LightSenseGetRawSensor extends MCUSensor {
 		return "lightValue";
 	}
 
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
+	}
 }

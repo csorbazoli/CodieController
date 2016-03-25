@@ -38,7 +38,7 @@ public class RemoteDeviceDiscovery {
 		}
 	}
 
-	public static Collection<RemoteDevice> discover() throws IOException, InterruptedException {
+	public static List<RemoteDevice> discover() throws IOException, InterruptedException {
 
 		final Object inquiryCompletedEvent = new Object();
 
@@ -76,11 +76,17 @@ public class RemoteDeviceDiscovery {
 		};
 
 		synchronized (inquiryCompletedEvent) {
-			boolean started = LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.GIAC, listener);
+			// LocalDevice.getLocalDevice().setDiscoverable(DiscoveryAgent.GIAC);
+			boolean started = LocalDevice.getLocalDevice().getDiscoveryAgent().startInquiry(DiscoveryAgent.LIAC,
+					listener);
 			if (started) {
 				LOGGER.info("wait for device inquiry to complete...");
 				inquiryCompletedEvent.wait();
 				LOGGER.info(devicesDiscovered.size() + " device(s) found");
+			}
+			for (RemoteDevice d : LocalDevice.getLocalDevice().getDiscoveryAgent()
+					.retrieveDevices(DiscoveryAgent.PREKNOWN)) {
+				devicesDiscovered.add(d);
 			}
 		}
 		return devicesDiscovered;
@@ -110,7 +116,8 @@ public class RemoteDeviceDiscovery {
 				String javaRuntimeName = System.getProperty("java.runtime.name");
 				if (javaRuntimeName != null && javaRuntimeName.toLowerCase().indexOf("android runtime") != -1) {
 					try {
-						int androidApiLevel = Class.forName("android.os.Build$VERSION").getField("SDK_INT").getInt(null);
+						int androidApiLevel = Class.forName("android.os.Build$VERSION").getField("SDK_INT")
+								.getInt(null);
 						// android 2.0 has code 5
 						if (androidApiLevel >= 5) {
 							// let's consider probability that Android 2.x bluetooth APIs

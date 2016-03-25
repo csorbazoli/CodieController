@@ -3,10 +3,10 @@
  */
 package hu.herba.util.codie.commands.mcu;
 
-import hu.herba.util.codie.CodieCommandProcessor;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.codie.CodieCommandProcessor;
 
 /**
  * The Null command has the 0x0 command ID, which is never used in normal communication.
@@ -31,4 +31,8 @@ public class NullCommand extends MCUCommand {
 		return "Null";
 	}
 
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
+	}
 }

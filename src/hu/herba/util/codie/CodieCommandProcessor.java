@@ -15,8 +15,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.commands.ble.BLEEchoCommand;
+import hu.herba.util.codie.commands.mcu.DriveDistanceBySpeedCommand;
+import hu.herba.util.codie.commands.mcu.DriveDistanceCommand;
+import hu.herba.util.codie.commands.mcu.DriveSpeedCommand;
+import hu.herba.util.codie.commands.mcu.DriveTurnCommand;
+import hu.herba.util.codie.commands.mcu.LedSetColorCommand;
 import hu.herba.util.codie.commands.mcu.MCUEchoCommand;
 import hu.herba.util.codie.commands.mcu.NullCommand;
+import hu.herba.util.codie.commands.mcu.SetSensorRefreshIntervalCommand;
+import hu.herba.util.codie.commands.mcu.SpeakBeepCommand;
 import hu.herba.util.codie.model.CodieCommand;
 import hu.herba.util.codie.model.CodieCommandBase;
 import hu.herba.util.codie.model.SensorType;
@@ -59,6 +66,13 @@ public class CodieCommandProcessor {
 		// MCU
 		registerCommand(new NullCommand());
 		registerCommand(new MCUEchoCommand());
+		registerCommand(new DriveDistanceBySpeedCommand());
+		registerCommand(new DriveDistanceCommand());
+		registerCommand(new DriveSpeedCommand());
+		registerCommand(new DriveTurnCommand());
+		registerCommand(new LedSetColorCommand());
+		registerCommand(new SetSensorRefreshIntervalCommand());
+		registerCommand(new SpeakBeepCommand());
 		// BLE
 		registerCommand(new BLEEchoCommand());
 
@@ -68,15 +82,17 @@ public class CodieCommandProcessor {
 	 * @param command
 	 */
 	private void registerCommand(final CodieCommand command) {
-		CodieCommandBase curCommand = commands.get(command.getName());
-		if (curCommand == null) {
-			commands.put(command.getName(), command);
-		} else if (curCommand.equals(command)) {
-			LOGGER.warn("Command already registered: " + command);
-		} else {
-			LOGGER.error("Command name collision: " + command + " = " + curCommand + "!");
+		String[] names = command.getName().split("\\|");
+		for (String name : names) {
+			CodieCommandBase curCommand = commands.get(name);
+			if (curCommand == null) {
+				commands.put(name, command);
+			} else if (curCommand.equals(command)) {
+				LOGGER.warn("Command already registered: " + command);
+			} else {
+				LOGGER.error("Command name collision: " + command + " = " + curCommand + "!");
+			}
 		}
-
 	}
 
 	public void handleCommand(final Writer out, final String commandDetails) throws IOException {
@@ -87,13 +103,13 @@ public class CodieCommandProcessor {
 			if ("reset_all".equals(commandName)) {
 				doResetAll();
 			} else {
-				for (CodieCommand command : commands.values()) {
-					if (commandName.equals(command.getName())) {
-						processCommand(command, parts);
-						return;
-					}
+				CodieCommand command = commands.get(commandName);
+				if (command == null) {
+					LOGGER.warn("Unhandled command type: " + commandName);
+				} else {
+					processCommand(command, parts);
+					return;
 				}
-				LOGGER.warn("Unhandled command type: " + commandName);
 			}
 		}
 	}

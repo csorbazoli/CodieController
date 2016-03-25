@@ -3,10 +3,10 @@
  */
 package hu.herba.util.codie.commands.mcu;
 
-import hu.herba.util.codie.CodieCommandProcessor;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.codie.CodieCommandProcessor;
 
 /**
  * Set motor speeds to the given value in percents (0-100%).
@@ -39,11 +39,16 @@ public class DriveTurnCommand extends MCUCommand {
 
 	@Override
 	public String getName() {
-		return "DriveDistance";
+		return "DriveTurn";
 	}
 
 	@Override
 	public boolean isWait() {
 		return true;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
 	}
 }

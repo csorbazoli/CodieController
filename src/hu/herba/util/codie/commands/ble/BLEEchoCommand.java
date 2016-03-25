@@ -3,10 +3,10 @@
  */
 package hu.herba.util.codie.commands.ble;
 
-import hu.herba.util.codie.CodieCommandProcessor;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.codie.CodieCommandProcessor;
 
 /**
  * The echo command simply requests an echo. Each node should reply with a packet with:
@@ -35,6 +35,11 @@ public class BLEEchoCommand extends BLECommand {
 	@Override
 	public String getName() {
 		return "EchoBle";
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
 	}
 
 }

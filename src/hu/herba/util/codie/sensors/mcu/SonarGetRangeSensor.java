@@ -49,7 +49,8 @@ public class SonarGetRangeSensor extends MCUSensor {
 	@Override
 	public void poll(final SensorValueStore sensorValueStore) {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
-		sensorValueStore.updateSensorValue(SensorType.sonarRange, 15);
+		// convert mm to cm!
+		sensorValueStore.updateSensorValue(SensorType.distanceSensor, 15);
 	}
 
 	@Override
@@ -62,4 +63,8 @@ public class SonarGetRangeSensor extends MCUSensor {
 		return "sonarRange";
 	}
 
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
+	}
 }

@@ -9,7 +9,7 @@ import java.util.Set;
 import hu.herba.util.codie.model.SensorType;
 
 /**
- * @author Zoltán
+ * @author Zoltï¿½n
  *
  */
 public interface SensorValueStore {
@@ -17,6 +17,8 @@ public interface SensorValueStore {
 	Set<Map.Entry<SensorType, String>> getSensorValues();
 
 	void updateSensorValue(final SensorType sensor, final Object value);
+
+	int getSensorValueInt(final SensorType sensor);
 
 	Object getConnection();
 

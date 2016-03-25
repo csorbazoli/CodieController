@@ -47,18 +47,20 @@ public class OBEXPutClient {
 		closeSession(clientSession);
 	}
 
-	private static void closeSession(final ClientSession clientSession) throws IOException {
+	public static void closeSession(final ClientSession clientSession) throws IOException {
 		clientSession.disconnect(null);
 
 		clientSession.close();
 	}
 
-	private static void sendTextMessage(final ClientSession clientSession, final String name, final String content) throws IOException, UnsupportedEncodingException {
+	public static void sendTextMessage(final ClientSession clientSession, final String name, final String content)
+			throws IOException, UnsupportedEncodingException {
 		LOGGER.info("Send text message: '" + name + "', with content '" + content + "'");
 		sendByteArray(clientSession, name, content.getBytes("iso-8859-1"), "text");
 	}
 
-	private static void sendByteArray(final ClientSession clientSession, final String name, final byte[] data, final String type) throws IOException, UnsupportedEncodingException {
+	public static void sendByteArray(final ClientSession clientSession, final String name, final byte[] data,
+			final String type) throws IOException, UnsupportedEncodingException {
 		LOGGER.info("Send message: '" + name + "', with content '" + data + "' of type = " + type);
 		HeaderSet hsOperation = clientSession.createHeaderSet();
 		hsOperation.setHeader(HeaderSet.NAME, name);
@@ -76,7 +78,8 @@ public class OBEXPutClient {
 		Field found = null;
 		for (Field field : fields) {
 			try {
-				if (int.class.equals(field.getType()) && (field.getModifiers() & Modifier.STATIC) > 0 && responseCode == field.getInt(null)) {
+				if (int.class.equals(field.getType()) && (field.getModifiers() & Modifier.STATIC) > 0
+						&& responseCode == field.getInt(null)) {
 					found = field;
 					break;
 				}
@@ -99,7 +102,7 @@ public class OBEXPutClient {
 	 * @return
 	 * @throws IOException
 	 */
-	private static ClientSession openSession(final String serverURL) throws IOException {
+	public static ClientSession openSession(final String serverURL) throws IOException {
 		LOGGER.info("Connecting to " + serverURL);
 
 		ClientSession clientSession = (ClientSession) Connector.open(serverURL);

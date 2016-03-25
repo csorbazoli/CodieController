@@ -2124,11 +2124,11 @@ msgid "Set color: %m.colorMenu"
 msgstr "Szín legyen %m.colorMenu"
 
 	
-msgid "Drive: %n mm by speed %d.percentMenu%"
-msgstr "Menj %n mm-t %d.percentMenu% sebességgel"
+msgid "Drive: %n cm by speed %d.percentMenu%"
+msgstr "Menj %n cm-t %d.percentMenu% sebességgel"
 
-msgid "Drive: %n mm"
-msgstr "Menj %n mm-t"
+msgid "Drive: %n cm"
+msgstr "Menj %n cm-t"
 
 msgid "Turn %d.degreeMenu degrees by speed %d.percentMenu%"
 msgstr "Fordulj %n fokot %d.percentMenu% sebességgel"
@@ -2154,7 +2154,7 @@ msgid "Refresh (ms)"
 msgstr "Frissítés (ms)"
 
 	
-msgid "Sonar range (mm)"
+msgid "Sonar range (cm)"
 msgstr "Távolság"
 
 msgid "Battery (%)"

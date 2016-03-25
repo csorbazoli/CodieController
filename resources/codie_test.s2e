@@ -6,18 +6,18 @@
 	[" ", "Set right speed: %d.percentMenu%", "DriveSpeedRight", 50],
 	[" ", "Set color: %m.colorMenu", "LedSetColor", "green"],
 	
-	["w", "Drive: %n mm by speed %d.percentMenu%", "DriveDistanceBySpeed", 20, 50],
-	["w", "Drive: %n mm", "DriveDistance", 20],
+	["w", "Drive: %n cm by speed %d.percentMenu%", "DriveDistanceBySpeed", 20, 50],
+	["w", "Drive: %n cm", "DriveDistance", 20],
 	["w", "Turn %d.degreeMenu degrees by speed %d.percentMenu%", "DriveTurn", 90, 50],
 	["w", "Beep %n ms", "SpeakBeep", 200],
 	
 	[" ", "Set sensor refresh: %d.refreshIntervalMenu ms on %m.sensorTypeMenu", "SetSensorRefreshInterval", 500, "all"],
-	["b", "LastResult", "lastResult"],
+	["r", "LastResult", "lastResult"],
 	["r", "Left wheel (%)", "leftspeed"],
 	["r", "Right wheel (%)", "rightspeed"],
 	["r", "Refresh (ms)", "refreshInterval"],
 	
-	["r", "Sonar range (mm)", "sonarRange"],
+	["r", "Sonar range (cm)", "sonarRange"],
 	["r", "Battery (%)", "batteryStateOfCharge"],
 	["r", "Light (0-4096)", "lightValue"],
 	["r", "Left line", "lineLeft"],

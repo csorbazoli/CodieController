@@ -3,9 +3,12 @@
  */
 package hu.herba.util.bluetooth;
 
+import hu.herba.util.codie.UserInputProcessor;
+
 import java.io.IOException;
 import java.util.List;
 
+import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.RemoteDevice;
 import javax.microedition.io.Connector;
 import javax.obex.ClientSession;
@@ -14,8 +17,6 @@ import javax.obex.ResponseCodes;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import hu.herba.util.codie.UserInputProcessor;
 
 /**
  * @author csorbazoli
@@ -26,6 +27,8 @@ public class CodieBluetoothConnectionFactory {
 	private static final Logger LOGGER = LogManager.getLogger(CodieBluetoothConnectionFactory.class);
 
 	private static final long RETRY_TIMEOUT = 1000; // retry timeout in milliseconds for a failed connection
+
+	private static final String CODIE_MOCK_SERVICE = "service://CodieMockService";
 
 	public static final String CODIE_MAC_ADDRESS = "FF0BC95A08C7";
 	// Codie has a custom BLE service with the following UUID: 52af0001-978a-628d-c845-0a104ca2b8dd
@@ -85,15 +88,28 @@ public class CodieBluetoothConnectionFactory {
 			if (selectedDevice != null) {
 				String serviceUrl = selectService(selectedDevice, CODIE_BLE_SERVICE_UUID);
 				if (serviceUrl != null) {
-					ret = OBEXPutClient.openSession(serviceUrl);
+					ret = openSession(serviceUrl);
 				}
 			}
 		} catch (IOException | InterruptedException e) {
 			throw new CodieConnectionException(e);
 		} catch (Exception e) {
-			throw new CodieConnectionException(e);
+			if (isMissingBluetoothStackException(e)) {
+				ret = new CodieMockClientSession();
+			} else {
+				throw new CodieConnectionException(e);
+			}
 		}
 		return ret;
+	}
+
+	private static boolean isMissingBluetoothStackException(Throwable e) {
+		if (e instanceof BluetoothStateException && "BluetoothStack not detected".equals(e.getMessage())) {
+			return true;
+		} else if (e.getCause() != null) {
+			return isMissingBluetoothStackException(e.getCause());
+		}
+		return false;
 	}
 
 	/**
@@ -103,8 +119,7 @@ public class CodieBluetoothConnectionFactory {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	private static String selectService(final RemoteDevice selectedDevice, final String serviceUUID)
-			throws IOException, InterruptedException {
+	private static String selectService(final RemoteDevice selectedDevice, final String serviceUUID) throws IOException, InterruptedException {
 		String ret = null;
 		List<String> services;
 		int selected = 0;

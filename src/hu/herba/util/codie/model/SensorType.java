@@ -4,14 +4,14 @@
 package hu.herba.util.codie.model;
 
 /**
- * @author Zolt�n
+ * @author csorbazoli
  *
  */
 public enum SensorType {
 	allSensors, //
 	// sensors
 	micSensor("micLevel"), //
-	lineSensor, //
+	lineSensor("lineLeft" + CodieCommandBase.SEPARATOR + "lineRight"), //
 	lightSensor("lightValue"), //
 	batterySensor("batteryStateOfCharge"), //
 	distanceSensor("sonarRange"), //

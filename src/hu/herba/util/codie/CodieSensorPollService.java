@@ -127,7 +127,7 @@ public class CodieSensorPollService implements SensorValueStore {
 			if (timer != null) {
 				timer.cancel();
 			}
-			timer = new SensorRefreshTimer(this, item.getKey().getName(), IS_DAEMON);
+			timer = new SensorRefreshTimer(this, item.getKey().getCommandType().name(), IS_DAEMON);
 			timer.schedule(item.getKey(), item.getValue());
 			timers.put(item.getKey(), timer);
 		}
@@ -149,8 +149,7 @@ public class CodieSensorPollService implements SensorValueStore {
 	 */
 	public void setTimerInterval(final SensorType sensorType, final int interval) {
 		if (interval < 100) {
-			LOGGER.warn("Refresh interval for sensors should not be less the 100ms! (requested value was: " + interval
-					+ ")");
+			LOGGER.warn("Refresh interval for sensors should not be less the 100ms! (requested value was: " + interval + ")");
 		}
 		switch (sensorType) {
 		case allSensors:
@@ -188,15 +187,15 @@ public class CodieSensorPollService implements SensorValueStore {
 	 */
 	private void setTimer(final CodieSensor sensor, final long interval) {
 		if (interval <= 0) { // clear timer
-			LOGGER.info("Stop timer of " + sensor.getName());
+			LOGGER.info("Stop timer of " + sensor.getCommandType());
 			sensors.put(sensor, null);
 		} else {
-			LOGGER.info("Set timer of " + sensor.getName() + " to " + interval + " ms");
+			LOGGER.info("Set timer of " + sensor.getCommandType() + " to " + interval + " ms");
 			sensors.put(sensor, interval);
 		}
 		SensorRefreshTimer timer = timers.get(sensor);
 		if (timer == null && interval > 0) {
-			timer = new SensorRefreshTimer(this, sensor.getName(), IS_DAEMON);
+			timer = new SensorRefreshTimer(this, sensor.getCommandType().name(), IS_DAEMON);
 			timers.put(sensor, timer);
 		}
 		if (timer != null) {

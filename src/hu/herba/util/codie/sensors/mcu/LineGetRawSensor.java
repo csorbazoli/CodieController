@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.SensorValueStore;
+import hu.herba.util.codie.model.CodieCommandType;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -14,8 +15,7 @@ import hu.herba.util.codie.model.SensorType;
  * ARG: none<br/>
  * ReARG: valueLeft[u16], valueRight[u16]<br/>
  *
- * Get a reading from the line sensor. The line sensors on the bottom of Codie are simple infrared reflective optical
- * sensors.
+ * Get a reading from the line sensor. The line sensors on the bottom of Codie are simple infrared reflective optical sensors.
  *
  * Replies: valueLeft, valueRight: Raw 12bit values from the ADC.
  *
@@ -51,13 +51,13 @@ public class LineGetRawSensor extends MCUSensor {
 	}
 
 	@Override
-	public int getCommandId() {
-		return 0x106b;
+	public CodieCommandType getCommandType() {
+		return CodieCommandType.LineGetRaw;
 	}
 
 	@Override
-	public String getName() {
-		return "lineLeft|lineRight";
+	public SensorType getSensorType() {
+		return SensorType.lineSensor;
 	}
 
 	@Override

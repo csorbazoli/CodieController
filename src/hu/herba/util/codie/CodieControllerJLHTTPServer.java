@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 
 import net.freeutils.httpserver.HTTPServer;
 import net.freeutils.httpserver.HTTPServer.ContextHandler;
-import net.freeutils.httpserver.HTTPServer.Headers;
 import net.freeutils.httpserver.HTTPServer.Request;
 import net.freeutils.httpserver.HTTPServer.Response;
 import net.freeutils.httpserver.HTTPServer.VirtualHost;
@@ -40,7 +39,7 @@ public class CodieControllerJLHTTPServer {
 			case "GET":
 				String servletPath = req.getPath();
 				LOGGER.info("GET " + servletPath);
-				Headers h = req.getHeaders();
+				// Headers h = req.getHeaders();
 				// setting the content type is not required!
 				// h.add("Content-Type", "text/plain");
 				// h.add("Server", "Apache-Coyote/1.1");
@@ -69,8 +68,7 @@ public class CodieControllerJLHTTPServer {
 		Scanner scan = new Scanner(System.in);
 		while (scan.hasNextLine()) {
 			String readLine = scan.nextLine();
-			if ("q".equalsIgnoreCase(readLine) || "quit".equalsIgnoreCase(readLine)
-					|| "exit".equalsIgnoreCase(readLine)) {
+			if ("q".equalsIgnoreCase(readLine) || "quit".equalsIgnoreCase(readLine) || "exit".equalsIgnoreCase(readLine)) {
 				scan.close();
 				codieControllerServer.stop();
 			} else {

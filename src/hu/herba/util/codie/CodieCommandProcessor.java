@@ -10,11 +10,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.herba.util.codie.commands.ble.BLEEchoCommand;
 import hu.herba.util.codie.commands.mcu.DriveDistanceBySpeedCommand;
 import hu.herba.util.codie.commands.mcu.DriveDistanceCommand;
 import hu.herba.util.codie.commands.mcu.DriveSpeedCommand;
@@ -74,7 +74,7 @@ public class CodieCommandProcessor {
 		registerCommand(new SetSensorRefreshIntervalCommand());
 		registerCommand(new SpeakBeepCommand());
 		// BLE
-		registerCommand(new BLEEchoCommand());
+		// registerCommand(new BLEEchoCommand());
 
 	}
 
@@ -82,7 +82,7 @@ public class CodieCommandProcessor {
 	 * @param command
 	 */
 	private void registerCommand(final CodieCommand command) {
-		String[] names = command.getName().split("\\|");
+		String[] names = command.getCommandType().getCommandName().split(Pattern.quote(CodieCommandBase.SEPARATOR));
 		for (String name : names) {
 			CodieCommandBase curCommand = commands.get(name);
 			if (curCommand == null) {
@@ -97,6 +97,7 @@ public class CodieCommandProcessor {
 
 	public void handleCommand(final Writer out, final String commandDetails) throws IOException {
 		out.append("Request = " + commandDetails + "\n");
+		LOGGER.info("Command: " + commandDetails);
 		String[] parts = commandDetails.split("/");
 		if (parts.length > 0 && !getCommandName(parts).isEmpty()) {
 			String commandName = getCommandName(parts);
@@ -179,21 +180,21 @@ public class CodieCommandProcessor {
 		// sensor values could be updated by AppCommands where Codie sends info about the state
 		// or normal commands which affects the state of Codie (e.g. moves codie which means the speed is changing)
 		for (Map.Entry<SensorType, String> sensorValue : CodieSensorPollService.getInstance().getSensorValues()) {
-			out.append(sensorValue.getKey().name() + " " + sensorValue.getValue() + "\n");
+			out.append(sensorValue.getKey().getSensorName() + " " + sensorValue.getValue() + "\n");
 		}
 
 		out.append("lastResult " + lastResult + "\n");
 	}
 
 	public void commandStarted(final CodieCommandBase command, final Integer uniqueCommandId) {
-		LOGGER.debug("Command " + command.getName() + " started " + (uniqueCommandId != null ? uniqueCommandId : ""));
+		LOGGER.trace("Command " + command.getCommandType() + " started " + (uniqueCommandId != null ? uniqueCommandId : ""));
 		if (uniqueCommandId != null) {
 			busyCommands.add(uniqueCommandId);
 		}
 	}
 
 	public void commandFinished(final CodieCommandBase command, final Integer uniqueCommandId) {
-		LOGGER.debug("Command " + command.getName() + " finished " + (uniqueCommandId != null ? uniqueCommandId : ""));
+		LOGGER.trace("Command " + command.getCommandType() + " finished " + (uniqueCommandId != null ? uniqueCommandId : ""));
 		if (uniqueCommandId != null) {
 			busyCommands.remove(uniqueCommandId);
 		}

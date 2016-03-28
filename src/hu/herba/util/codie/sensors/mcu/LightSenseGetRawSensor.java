@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.SensorValueStore;
+import hu.herba.util.codie.model.CodieCommandType;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -16,8 +17,8 @@ import hu.herba.util.codie.model.SensorType;
  *
  * Get a reading from the light sensor.
  *
- * Replies: lightValue: A raw reading from the light sensor. The value is measured by ADC on 12 bits, so this can be
- * 0-4096, 0 meaining the brightest and 4095 the darkest light.
+ * Replies: lightValue: A raw reading from the light sensor. The value is measured by ADC on 12 bits, so this can be 0-4096, 0 meaining the brightest and 4095
+ * the darkest light.
  *
  * @author csorbazoli
  */
@@ -50,13 +51,13 @@ public class LightSenseGetRawSensor extends MCUSensor {
 	}
 
 	@Override
-	public int getCommandId() {
-		return 0x106a;
+	public CodieCommandType getCommandType() {
+		return CodieCommandType.LightSenseGetRaw;
 	}
 
 	@Override
-	public String getName() {
-		return "lightValue";
+	public SensorType getSensorType() {
+		return SensorType.lightSensor;
 	}
 
 	@Override

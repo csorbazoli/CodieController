@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.CodieCommandProcessor;
 import hu.herba.util.codie.CodieSensorPollService;
+import hu.herba.util.codie.model.CodieCommandType;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -23,18 +24,13 @@ public class SetSensorRefreshIntervalCommand extends MCUCommand {
 	@Override
 	public void process(final CodieCommandProcessor codieCommandProcessor, final String[] commandParts) {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
-		CodieSensorPollService.getInstance().setTimerInterval(
-				SensorType.valueOf(getStringParam(commandParts, 2, "allSensors")), getIntParam(commandParts, 1, 1000));
+		CodieSensorPollService.getInstance().setTimerInterval(SensorType.valueOf(getStringParam(commandParts, 2, "allSensors")),
+				getIntParam(commandParts, 1, 1000));
 	}
 
 	@Override
-	public int getCommandId() {
-		return 0x0;
-	}
-
-	@Override
-	public String getName() {
-		return "SetSensorRefreshInterval";
+	public CodieCommandType getCommandType() {
+		return CodieCommandType.SetSensorRefreshInterval;
 	}
 
 	@Override

@@ -4,7 +4,7 @@
 package hu.herba.util.codie;
 
 /**
- * @author Zoltán
+ * @author csorbazoli
  *
  */
 public interface UserInputListener {

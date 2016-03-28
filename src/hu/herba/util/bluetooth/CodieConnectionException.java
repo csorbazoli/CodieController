@@ -9,6 +9,8 @@ package hu.herba.util.bluetooth;
  */
 public class CodieConnectionException extends Exception {
 
+	private static final long serialVersionUID = 8898735880528223699L;
+
 	/**
 	 * @param message
 	 */

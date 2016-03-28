@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.SensorValueStore;
+import hu.herba.util.codie.model.CodieCommandType;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -16,8 +17,7 @@ import hu.herba.util.codie.model.SensorType;
  *
  * Get a reading from the microphone.
  *
- * Replies: value: Raw value ranging from 0 to about 2048. Several measurements are averaged into one value, the window
- * of averaging is about 50ms.
+ * Replies: value: Raw value ranging from 0 to about 2048. Several measurements are averaged into one value, the window of averaging is about 50ms.
  *
  * @author csorbazoli
  */
@@ -50,13 +50,13 @@ public class MicGetRawSensor extends MCUSensor {
 	}
 
 	@Override
-	public int getCommandId() {
-		return 0x106c;
+	public CodieCommandType getCommandType() {
+		return CodieCommandType.MicGetRaw;
 	}
 
 	@Override
-	public String getName() {
-		return "micLevel";
+	public SensorType getSensorType() {
+		return SensorType.micSensor;
 	}
 
 	@Override

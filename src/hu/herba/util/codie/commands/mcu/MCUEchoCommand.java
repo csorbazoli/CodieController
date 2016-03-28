@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.CodieCommandProcessor;
+import hu.herba.util.codie.model.CodieCommandType;
 
 /**
  * The echo command simply requests an echo. Each node should reply with a packet with:
@@ -28,13 +29,8 @@ public class MCUEchoCommand extends MCUCommand {
 	}
 
 	@Override
-	public int getCommandId() {
-		return 0x0;
-	}
-
-	@Override
-	public String getName() {
-		return "EchoMcu";
+	public CodieCommandType getCommandType() {
+		return CodieCommandType.Echo;
 	}
 
 	@Override

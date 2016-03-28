@@ -4,14 +4,14 @@
 package hu.herba.util.codie.model;
 
 /**
- * @author Zoltán
+ * @author csorbazoli
  */
 // Codie communicates with a custom binary protocol. All fields and data is little-endian.
 // Little-endian means for example: 18 = 0x12, but on two bytes it will be 0x12 0x00 (so the first byte is the low, and
 // the second is the high one!)
 //
 // The communication takes place among three nodes:
-// App: The application which can be a mobile app on a mobile platform, a PC program… anything which is in the
+// App: The application which can be a mobile app on a mobile platform, a PC programï¿½ anything which is in the
 // central BLE role, connecting to Codie.
 // BLE: The BLE module inside Codie. There are special commands that can be executed only by the BLE module.
 // MCU: The host microcontroller unit in Codie, executing the majority of the commands.
@@ -57,16 +57,12 @@ public interface CodieCommandBase {
 	int NORMAL = 0x00;
 	int HIGH = 0x08;
 
-	/**
-	 * @return Name of the command how it is triggered by Scratch.
-	 */
-	String getName();
+	public static final String SEPARATOR = "|";
 
 	/**
-	 * Two bytes that specifies the command id (e.g. 0x1061 is 'move forward')
-	 *
-	 * @return Numeric (unique) id of this command.
+	 * @return Type of the command, where {@link CodieCommandType#name()} specifies the name of the command how it is triggered by Scratch, and
+	 *         {@link CodieCommandType#getCommandId()} specifies the two byte integer that is known by Codie.
 	 */
-	int getCommandId();
+	CodieCommandType getCommandType();
 
 }

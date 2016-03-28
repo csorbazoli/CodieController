@@ -16,8 +16,9 @@ public abstract class AbstractCodieCommand extends AbstractCodieCommandBase impl
 	 */
 	protected int getIntParam(final String[] commandParts, final int idx, final int defVal) {
 		int ret = defVal;
-		if (commandParts.length > idx) {
-			String param = commandParts[idx];
+		int idx2 = isWait() ? idx + 1 : idx;
+		if (commandParts.length > idx2) {
+			String param = commandParts[idx2];
 			try {
 				ret = Integer.parseInt(param);
 			} catch (NumberFormatException e) {

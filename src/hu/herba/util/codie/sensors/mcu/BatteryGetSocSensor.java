@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.SensorValueStore;
+import hu.herba.util.codie.model.CodieCommandType;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -49,13 +50,13 @@ public class BatteryGetSocSensor extends MCUSensor {
 	}
 
 	@Override
-	public int getCommandId() {
-		return 0x1069;
+	public CodieCommandType getCommandType() {
+		return CodieCommandType.BatteryGetSoc;
 	}
 
 	@Override
-	public String getName() {
-		return "batteryStateOfCharge";
+	public SensorType getSensorType() {
+		return SensorType.batterySensor;
 	}
 
 	@Override

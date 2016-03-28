@@ -1,7 +1,7 @@
 /**
  *
  */
-package hu.herba.util.bluetooth;
+package hu.herba.util.bluetooth.mock;
 
 import java.io.IOException;
 import java.util.Collections;

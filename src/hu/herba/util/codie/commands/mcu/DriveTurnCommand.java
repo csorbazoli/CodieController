@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.CodieCommandProcessor;
+import hu.herba.util.codie.model.CodieCommandType;
 
 /**
  * Set motor speeds to the given value in percents (0-100%).
@@ -15,8 +16,8 @@ import hu.herba.util.codie.CodieCommandProcessor;
  * ARG: degree[u16](�), speed[i8](%)<br/>
  * ReARG: nSuccessful[u8]<br/>
  *
- * This command makes the robot turn given degrees in one place, by starting the tracks in different directions with
- * given speed. Pozitive speeds turns left, negative speed turns right.
+ * This command makes the robot turn given degrees in one place, by starting the tracks in different directions with given speed. Pozitive speeds turns left,
+ * negative speed turns right.
  *
  * Replies: nSuccessful: 0 means command has been successfully executed, any other value means error.
  *
@@ -33,13 +34,8 @@ public class DriveTurnCommand extends MCUCommand {
 	}
 
 	@Override
-	public int getCommandId() {
-		return 0x1061;
-	}
-
-	@Override
-	public String getName() {
-		return "DriveTurn";
+	public CodieCommandType getCommandType() {
+		return CodieCommandType.DriveTurn;
 	}
 
 	@Override

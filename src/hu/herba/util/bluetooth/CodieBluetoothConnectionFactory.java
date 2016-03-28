@@ -3,8 +3,6 @@
  */
 package hu.herba.util.bluetooth;
 
-import hu.herba.util.codie.UserInputProcessor;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -17,6 +15,9 @@ import javax.obex.ResponseCodes;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.bluetooth.mock.CodieMockClientSession;
+import hu.herba.util.codie.UserInputProcessor;
 
 /**
  * @author csorbazoli
@@ -52,7 +53,7 @@ public class CodieBluetoothConnectionFactory {
 	 * @return Connection
 	 *
 	 */
-	public static synchronized Object connect() {
+	public static synchronized ClientSession connect() {
 		if (currentConnection == null && retryTimeout()) {
 			if (lastError == null) {
 				LOGGER.debug("Open connection to codie...");
@@ -79,31 +80,47 @@ public class CodieBluetoothConnectionFactory {
 
 	private static ClientSession openConnection() throws CodieConnectionException {
 		ClientSession ret = null;
-		// Code MAC address: FF:0b:C9:5A:08:C7
-		// UUID: 52af0001-978a-628d-c845-0a104ca2b8dd
-		// RX: {52af0002-978a-628d-c845-0a104ca2b8dd}
-		// TX: {52af0003-978a-628d-c845-0a104ca2b8dd} - not used yet
-		try {
-			RemoteDevice selectedDevice = selectDevice();
-			if (selectedDevice != null) {
-				String serviceUrl = selectService(selectedDevice, CODIE_BLE_SERVICE_UUID);
-				if (serviceUrl != null) {
-					ret = openSession(serviceUrl);
+		if (Boolean.parseBoolean(System.getenv("MOCK_CODIE"))) {
+			ret = getMockSession();
+		} else {
+			// Code MAC address: FF:0b:C9:5A:08:C7
+			// UUID: 52af0001-978a-628d-c845-0a104ca2b8dd
+			// RX: {52af0002-978a-628d-c845-0a104ca2b8dd}
+			// TX: {52af0003-978a-628d-c845-0a104ca2b8dd} - not used yet
+			try {
+				RemoteDevice selectedDevice = selectDevice();
+				if (selectedDevice != null) {
+					String serviceUrl = selectService(selectedDevice, CODIE_BLE_SERVICE_UUID);
+					if (serviceUrl == null) {
+						ret = getMockSession();
+					} else {
+						ret = openSession(serviceUrl);
+					}
 				}
-			}
-		} catch (IOException | InterruptedException e) {
-			throw new CodieConnectionException(e);
-		} catch (Exception e) {
-			if (isMissingBluetoothStackException(e)) {
-				ret = new CodieMockClientSession();
-			} else {
+			} catch (IOException | InterruptedException e) {
 				throw new CodieConnectionException(e);
+			} catch (Exception e) {
+				if (isMissingBluetoothStackException(e)) {
+					ret = getMockSession();
+				} else {
+					throw new CodieConnectionException(e);
+				}
 			}
 		}
 		return ret;
 	}
 
-	private static boolean isMissingBluetoothStackException(Throwable e) {
+	private static ClientSession getMockSession() throws CodieConnectionException {
+		ClientSession codieMockClientSession = new CodieMockClientSession();
+		try {
+			codieMockClientSession.connect(null);
+		} catch (IOException e) {
+			throw new CodieConnectionException(e.getMessage(), e);
+		}
+		return codieMockClientSession;
+	}
+
+	private static boolean isMissingBluetoothStackException(final Throwable e) {
 		if (e instanceof BluetoothStateException && "BluetoothStack not detected".equals(e.getMessage())) {
 			return true;
 		} else if (e.getCause() != null) {
@@ -119,7 +136,8 @@ public class CodieBluetoothConnectionFactory {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	private static String selectService(final RemoteDevice selectedDevice, final String serviceUUID) throws IOException, InterruptedException {
+	private static String selectService(final RemoteDevice selectedDevice, final String serviceUUID)
+			throws IOException, InterruptedException {
 		String ret = null;
 		List<String> services;
 		int selected = 0;

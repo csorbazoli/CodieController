@@ -9,7 +9,7 @@ import java.util.Set;
 import hu.herba.util.codie.model.SensorType;
 
 /**
- * @author Zolt�n
+ * @author csorbazoli
  *
  */
 public interface SensorValueStore {

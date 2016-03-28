@@ -3,15 +3,27 @@
  */
 package hu.herba.util.codie.model;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
+
+import javax.obex.ClientSession;
+import javax.obex.HeaderSet;
+import javax.obex.Operation;
+import javax.obex.ResponseCodes;
 
 import org.apache.logging.log4j.Logger;
 
+import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
+import hu.herba.util.codie.CodieCommandException;
 import hu.herba.util.codie.CodieSensorPollService;
 import hu.herba.util.codie.SensorValueStore;
 
 /**
- * @author Zolt�n
+ * @author csorbazoli
  *
  */
 public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comparable<CodieCommandBase> {
@@ -56,7 +68,7 @@ public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comp
 		dataPackage[packageLength++] = (byte) (seq & 0x00FF);
 		dataPackage[packageLength++] = (byte) (seq & 0x0FF00);
 		// CMD (16 bits)
-		int cmdId = getCommandId();
+		int cmdId = getCommandType().getCommandId();
 		dataPackage[packageLength++] = (byte) (cmdId & 0x00FF);
 		dataPackage[packageLength++] = (byte) (cmdId & 0x0FF00);
 		// ARGLEN (16 bits)
@@ -84,13 +96,54 @@ public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comp
 		return Arrays.copyOf(dataPackage, packageLength);
 	}
 
-	protected int sendCommand() {
+	protected int sendCommand() throws CodieCommandException {
 		int ret = 0;
-		byte[] data = getDataPackage();
+		try {
+			sendByteArray(CodieBluetoothConnectionFactory.connect(), getCommandType().getCommandName(), getDataPackage(), "binary");
+		} catch (IOException e) {
+			throw new CodieCommandException(e.getMessage(), e);
+		}
 		// TODO push data on channel
 		// TODO wait for result and return it
 		getSensorValueStore().updateSensorValue(SensorType.lastResult, ret);
 		return ret;
+	}
+
+	public void sendByteArray(final ClientSession clientSession, final String name, final byte[] data, final String type)
+			throws IOException, UnsupportedEncodingException {
+		getLogger().info("Send message: '" + name + "', with content '" + data + "' of type = " + type);
+		HeaderSet hsOperation = clientSession.createHeaderSet();
+		hsOperation.setHeader(HeaderSet.NAME, name);
+		hsOperation.setHeader(HeaderSet.TYPE, type);
+		hsOperation.setHeader(HeaderSet.LENGTH, Long.valueOf(data.length));
+
+		// Create PUT Operation
+		Operation putOperation = clientSession.put(hsOperation);
+		OutputStream os = putOperation.openOutputStream();
+		os.write(data);
+		os.close();
+
+		int responseCode = putOperation.getResponseCode();
+		Field[] fields = ResponseCodes.class.getFields();
+		Field found = null;
+		for (Field field : fields) {
+			try {
+				if (int.class.equals(field.getType()) && (field.getModifiers() & Modifier.STATIC) > 0 && responseCode == field.getInt(null)) {
+					found = field;
+					break;
+				}
+			} catch (IllegalArgumentException e) {
+				getLogger().warn("Field is not a static int: " + field);
+			} catch (IllegalAccessException e) {
+				getLogger().warn("Field is not a static int: " + field);
+			}
+		}
+		if (found == null) {
+			getLogger().warn("Unknown responseCode: " + responseCode);
+		} else {
+			getLogger().info("ResponseCode: " + found.getName() + " = " + responseCode);
+		}
+		putOperation.close();
 	}
 
 	protected SensorValueStore getSensorValueStore() {
@@ -103,10 +156,7 @@ public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comp
 		if (o == null) {
 			ret = 1;
 		} else {
-			ret = getName().compareTo(o.getName());
-			if (ret == 0) {
-				ret = Integer.compare(getCommandId(), o.getCommandId());
-			}
+			ret = getCommandType().compareTo(o.getCommandType());
 		}
 		return ret;
 	}
@@ -117,7 +167,7 @@ public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comp
 		if (obj == null || !this.getClass().equals(obj.getClass())) {
 			ret = false;
 		} else {
-			ret = getCommandId() == ((CodieCommandBase) obj).getCommandId();
+			ret = getCommandType().equals(((CodieCommandBase) obj).getCommandType());
 		}
 		return ret;
 	}
@@ -125,14 +175,14 @@ public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comp
 	@Override
 	public int hashCode() {
 		int prime = 37;
-		int hash = getCommandId();
+		int hash = getCommandType().getCommandId();
 		hash = hash * prime;
 		return hash;
 	}
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + "[" + getCommandId() + "]-" + getName();
+		return this.getClass().getSimpleName() + "[" + getCommandType().getCommandId() + "]-" + getCommandType().getCommandName();
 	}
 
 	/**

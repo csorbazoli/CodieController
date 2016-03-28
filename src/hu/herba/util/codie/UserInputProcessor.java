@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * @author Zoltán
+ * @author csorbazoli
  *
  */
 public class UserInputProcessor {
@@ -42,8 +42,7 @@ public class UserInputProcessor {
 		Scanner scan = new Scanner(System.in);
 		while (scan.hasNextLine()) {
 			String readLine = scan.nextLine();
-			if ("q".equalsIgnoreCase(readLine) || "quit".equalsIgnoreCase(readLine)
-					|| "exit".equalsIgnoreCase(readLine)) {
+			if ("q".equalsIgnoreCase(readLine) || "quit".equalsIgnoreCase(readLine) || "exit".equalsIgnoreCase(readLine)) {
 				scan.close();
 				stop();
 			} else if (!notifyListeners(readLine)) {

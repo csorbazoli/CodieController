@@ -1,7 +1,5 @@
 package hu.herba.util.codie;
 
-import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
 
 /**
  * Servlet implementation class CodieControllerDispatcher
@@ -103,7 +103,7 @@ public class CodieControllerDispatcher extends HttpServlet {
 	}
 
 	private void pollRequest(final Writer out) throws IOException {
-		out.append("CodieController 1.0\n");
+		// out.append("CodieController 1.0\n");
 		if (conn == null) {
 			out.append("_problem NOT CONNECTED");
 		} else {

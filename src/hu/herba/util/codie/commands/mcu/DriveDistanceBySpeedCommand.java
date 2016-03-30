@@ -7,9 +7,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.CodieCommandException;
-import hu.herba.util.codie.CodieCommandProcessor;
 import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandType;
+import hu.herba.util.codie.model.DataPackage;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -30,11 +30,11 @@ public class DriveDistanceBySpeedCommand extends DriveDistanceCommand {
 	private static final Logger LOGGER = LogManager.getLogger(DriveDistanceBySpeedCommand.class);
 
 	@Override
-	public void process(final CodieCommandProcessor codieCommandProcessor, final String[] commandParts) throws CodieCommandException {
+	public int processRequest(final String[] commandParts) throws CodieCommandException {
 		int distance = getIntParam(commandParts, 1, 5) * 10;
 		int speed = getIntParam(commandParts, 2, 10);
 		// then revert speed values as Codie stops
-		pack.prepareRequest(this, 4);
+		int ret = pack.prepareRequest(this, 4);
 		pack.addArgument(distance, ArgumentType.U16);
 		pack.addArgument(speed, ArgumentType.I8); // leftSpeed
 		pack.addArgument(speed, ArgumentType.I8); // rightSpeed
@@ -42,6 +42,17 @@ public class DriveDistanceBySpeedCommand extends DriveDistanceCommand {
 		getSensorValueStore().updateSensorValue(SensorType.leftSpeed, speed);
 		getSensorValueStore().updateSensorValue(SensorType.rightSpeed, speed);
 		if (sendCommand() == 0) {
+			getSensorValueStore().updateSensorValue(SensorType.leftSpeed, 0);
+			getSensorValueStore().updateSensorValue(SensorType.rightSpeed, 0);
+		}
+		return ret;
+	}
+
+	@Override
+	public void processResponse(final DataPackage response) throws CodieCommandException {
+		int nSuccessful = response.readArgument(0, ArgumentType.U8);
+		if (nSuccessful != 0) {
+			getSensorValueStore().setLastResult(false);
 			getSensorValueStore().updateSensorValue(SensorType.leftSpeed, 0);
 			getSensorValueStore().updateSensorValue(SensorType.rightSpeed, 0);
 		}

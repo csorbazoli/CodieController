@@ -18,6 +18,8 @@ public interface SensorValueStore {
 
 	void updateSensorValue(final SensorType sensor, final Object value);
 
+	void setLastResult(boolean success);
+
 	int getSensorValueInt(final SensorType sensor);
 
 	Object getConnection();

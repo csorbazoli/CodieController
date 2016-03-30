@@ -6,8 +6,10 @@ package hu.herba.util.codie.commands.mcu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.herba.util.codie.CodieCommandProcessor;
+import hu.herba.util.codie.CodieCommandException;
+import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandType;
+import hu.herba.util.codie.model.DataPackage;
 
 /**
  * ID: 0x1064<br/>
@@ -24,10 +26,24 @@ import hu.herba.util.codie.model.CodieCommandType;
  */
 public class SpeakBeepCommand extends MCUCommand {
 	private static final Logger LOGGER = LogManager.getLogger(SpeakBeepCommand.class);
+	private static final int MAX_DURATION = 10000; // 10 seconds
 
 	@Override
-	public void process(final CodieCommandProcessor codieCommandProcessor, final String[] commandParts) {
+	public int processRequest(final String[] commandParts) throws CodieCommandException {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
+		int duration = (int) (getDoubleParam(commandParts, 1, 1) * 1000); // sec -> millis
+		int ret = pack.prepareRequest(this, 2);
+		pack.addArgument(Math.min(duration, MAX_DURATION), ArgumentType.U16);
+		sendCommand();
+		return ret;
+	}
+
+	@Override
+	public void processResponse(final DataPackage response) throws CodieCommandException {
+		int nSuccessful = response.readArgument(0, ArgumentType.U8);
+		if (nSuccessful != 0) {
+			getSensorValueStore().setLastResult(false);
+		}
 	}
 
 	@Override

@@ -6,8 +6,9 @@ package hu.herba.util.codie.commands.ble;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.herba.util.codie.CodieCommandProcessor;
+import hu.herba.util.codie.CodieCommandException;
 import hu.herba.util.codie.model.CodieCommandType;
+import hu.herba.util.codie.model.DataPackage;
 
 /**
  * The echo command simply requests an echo. Each node should reply with a packet with:
@@ -24,8 +25,16 @@ public class BLEEchoCommand extends BLECommand {
 	private static final Logger LOGGER = LogManager.getLogger(BLEEchoCommand.class);
 
 	@Override
-	public void process(final CodieCommandProcessor codieCommandProcessor, final String[] commandParts) {
+	public int processRequest(final String[] commandParts) throws CodieCommandException {
 		LOGGER.info("Processing " + getClass().getSimpleName() + ": send echo request");
+		int ret = pack.prepareRequest(this, 2);
+		sendCommand();
+		return ret;
+	}
+
+	@Override
+	public void processResponse(final DataPackage response) throws CodieCommandException {
+		getSensorValueStore().setLastResult(true);
 	}
 
 	@Override

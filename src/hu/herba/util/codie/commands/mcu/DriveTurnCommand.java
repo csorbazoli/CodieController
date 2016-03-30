@@ -6,8 +6,11 @@ package hu.herba.util.codie.commands.mcu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import hu.herba.util.codie.CodieCommandProcessor;
+import hu.herba.util.codie.CodieCommandException;
+import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandType;
+import hu.herba.util.codie.model.DataPackage;
+import hu.herba.util.codie.model.SensorType;
 
 /**
  * Set motor speeds to the given value in percents (0-100%).
@@ -29,8 +32,30 @@ public class DriveTurnCommand extends MCUCommand {
 	private static final Logger LOGGER = LogManager.getLogger(DriveTurnCommand.class);
 
 	@Override
-	public void process(final CodieCommandProcessor codieCommandProcessor, final String[] commandParts) {
-		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
+	public int processRequest(final String[] commandParts) throws CodieCommandException {
+		int degree = getIntParam(commandParts, 1, 5);
+		int speed = getIntParam(commandParts, 2, 5);
+		int ret = pack.prepareRequest(this, 3);
+		pack.addArgument(degree, ArgumentType.U16);
+		pack.addArgument(speed, ArgumentType.I8);
+		// update leftSpeed/rightSpeed values
+		getSensorValueStore().updateSensorValue(SensorType.leftSpeed, speed);
+		getSensorValueStore().updateSensorValue(SensorType.rightSpeed, -speed);
+		if (sendCommand() == 0) {
+			getSensorValueStore().updateSensorValue(SensorType.leftSpeed, 0);
+			getSensorValueStore().updateSensorValue(SensorType.rightSpeed, 0);
+		}
+		return ret;
+	}
+
+	@Override
+	public void processResponse(final DataPackage response) throws CodieCommandException {
+		int nSuccessful = response.readArgument(0, ArgumentType.U8);
+		if (nSuccessful != 0) {
+			getSensorValueStore().setLastResult(false);
+			getSensorValueStore().updateSensorValue(SensorType.leftSpeed, 0);
+			getSensorValueStore().updateSensorValue(SensorType.rightSpeed, 0);
+		}
 	}
 
 	@Override

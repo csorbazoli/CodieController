@@ -6,8 +6,11 @@ package hu.herba.util.codie.sensors.mcu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import hu.herba.util.codie.CodieCommandException;
 import hu.herba.util.codie.SensorValueStore;
+import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandType;
+import hu.herba.util.codie.model.DataPackage;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -48,6 +51,14 @@ public class LineGetRawSensor extends MCUSensor {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
 		sensorValueStore.updateSensorValue(SensorType.lineLeft, 116);
 		sensorValueStore.updateSensorValue(SensorType.lineRight, 214);
+	}
+
+	@Override
+	public void processResponse(final DataPackage response) throws CodieCommandException {
+		int leftValue = response.readArgument(0, ArgumentType.U16);
+		int rightValue = response.readArgument(2, ArgumentType.U16);
+		getSensorValueStore().updateSensorValue(SensorType.lineLeft, leftValue);
+		getSensorValueStore().updateSensorValue(SensorType.lineRight, rightValue);
 	}
 
 	@Override

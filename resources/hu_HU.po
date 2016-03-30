@@ -27,6 +27,8 @@ msgstr "Jobb kerék %d.percentMenu%"
 msgid "Set color: %m.colorMenu"
 msgstr "Szín legyen %m.colorMenu"
 
+msgid "Set color: %m.colorMenu of led %d.ledIndex"
+msgstr "%d.ledIndex led színe legyen %m.colorMenu"
 	
 msgid "Drive: %n cm by speed %d.percentMenu%"
 msgstr "Menj %n cm-t %d.percentMenu% sebességgel"
@@ -37,8 +39,8 @@ msgstr "Menj %n cm-t"
 msgid "Turn %d.degreeMenu degrees by speed %d.percentMenu%"
 msgstr "Fordulj %n fokot %d.percentMenu% sebességgel"
 
-msgid "Beep %n ms"
-msgstr "Beep %n ms"
+msgid "Beep %n s"
+msgstr "Beep %n s"
 
 	
 msgid "Set sensor refresh: %d.refreshIntervalMenu ms on %m.sensorTypeMenu"

@@ -6,8 +6,11 @@ package hu.herba.util.codie.sensors.mcu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import hu.herba.util.codie.CodieCommandException;
 import hu.herba.util.codie.SensorValueStore;
+import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandType;
+import hu.herba.util.codie.model.DataPackage;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -47,6 +50,12 @@ public class BatteryGetSocSensor extends MCUSensor {
 	public void poll(final SensorValueStore sensorValueStore) {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
 		sensorValueStore.updateSensorValue(SensorType.batterySensor, 100);
+	}
+
+	@Override
+	public void processResponse(final DataPackage response) throws CodieCommandException {
+		int stateOfCharge = response.readArgument(0, ArgumentType.U8);
+		getSensorValueStore().updateSensorValue(SensorType.micSensor, stateOfCharge);
 	}
 
 	@Override

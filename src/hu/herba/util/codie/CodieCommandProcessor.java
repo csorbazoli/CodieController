@@ -99,7 +99,7 @@ public class CodieCommandProcessor {
 		out.append("Request = " + commandDetails + "\n");
 		LOGGER.info("Command: " + commandDetails);
 		String[] parts = commandDetails.split("/");
-		if (parts.length > 0 && !getCommandName(parts).isEmpty()) {
+		if ((parts.length > 0) && !getCommandName(parts).isEmpty()) {
 			String commandName = getCommandName(parts);
 			if ("reset_all".equals(commandName)) {
 				doResetAll();
@@ -118,17 +118,19 @@ public class CodieCommandProcessor {
 	private void processCommand(final CodieCommand command, final String[] parts) {
 		Integer uniqueCommandId = null;
 		if (command.isWait()) {
-
+			uniqueCommandId = Integer.parseInt(parts[1]);
 		}
 		commandStarted(command, uniqueCommandId);
 		try {
-			command.process(this, parts);
+			command.processRequest(parts);
 			setLastResult(true);
 		} catch (CodieCommandException e) {
 			LOGGER.warn("Failed to process Codie command: " + e.getMessage(), e);
 			setLastResult(false);
 		} finally {
-			commandFinished(command, uniqueCommandId);
+			if (uniqueCommandId == null) {
+				commandFinished(command, uniqueCommandId);
+			}
 		}
 	}
 

@@ -5,13 +5,14 @@
 	[" ", "Set left speed: %d.percentMenu%", "DriveSpeedLeft", 50],
 	[" ", "Set right speed: %d.percentMenu%", "DriveSpeedRight", 50],
 	[" ", "Set color: %m.colorMenu", "LedSetColor", "green"],
+	[" ", "Set color: %m.colorMenu of led %d.ledIndex", "LedSetColorSingle", "green", 1],
 	
 	["w", "Drive: %n cm by speed %d.percentMenu%", "DriveDistanceBySpeed", 20, 50],
 	["w", "Drive: %n cm", "DriveDistance", 20],
 	["w", "Turn %d.degreeMenu degrees by speed %d.percentMenu%", "DriveTurn", 90, 50],
-	["w", "Beep %n ms", "SpeakBeep", 200],
+	["w", "Beep %n s", "SpeakBeep", 1],
 	
-	[" ", "Set sensor refresh: %d.refreshIntervalMenu ms on %m.sensorTypeMenu", "SetSensorRefreshInterval", 500, "all"],
+	[" ", "Set sensor refresh: %d.refreshIntervalMenu ms on %m.sensorTypeMenu", "SetSensorRefreshInterval", 500, "allSensors"],
 	["r", "LastResult", "lastResult"],
 	["r", "Left wheel (%)", "leftspeed"],
 	["r", "Right wheel (%)", "rightspeed"],
@@ -30,5 +31,6 @@
 	"refreshIntervalMenu": ["0", "250", "500", "750", "1000"],
 	"sensorTypeMenu": ["allSensors", "batterySensor", "distanceSensor", "lightSensor", "lineSensor", "micSensor"],
 	"colorMenu": ["white", "green", "red", "blue", "cyan", "yellow", "orange"],
+	"ledIndex": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
   },
 }

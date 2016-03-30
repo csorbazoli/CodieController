@@ -115,6 +115,11 @@ public class CodieSensorPollService implements SensorValueStore {
 		sensorValues.put(sensor, String.valueOf(value));
 	}
 
+	@Override
+	public void setLastResult(final boolean success) {
+		sensorValues.put(SensorType.lastResult, Boolean.toString(success));
+	}
+
 	/**
 	 * @param conn
 	 *

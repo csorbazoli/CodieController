@@ -6,8 +6,11 @@ package hu.herba.util.codie.sensors.mcu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import hu.herba.util.codie.CodieCommandException;
 import hu.herba.util.codie.SensorValueStore;
+import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandType;
+import hu.herba.util.codie.model.DataPackage;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -47,6 +50,12 @@ public class MicGetRawSensor extends MCUSensor {
 	public void poll(final SensorValueStore sensorValueStore) {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
 		sensorValueStore.updateSensorValue(SensorType.micSensor, 46);
+	}
+
+	@Override
+	public void processResponse(final DataPackage response) throws CodieCommandException {
+		int micValue = response.readArgument(0, ArgumentType.U16);
+		getSensorValueStore().updateSensorValue(SensorType.micSensor, micValue);
 	}
 
 	@Override

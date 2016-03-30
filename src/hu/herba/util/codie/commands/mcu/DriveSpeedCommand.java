@@ -7,9 +7,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.CodieCommandException;
-import hu.herba.util.codie.CodieCommandProcessor;
 import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandType;
+import hu.herba.util.codie.model.DataPackage;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -26,7 +26,7 @@ public class DriveSpeedCommand extends MCUCommand {
 	private static final Logger LOGGER = LogManager.getLogger(DriveSpeedCommand.class);
 
 	@Override
-	public void process(final CodieCommandProcessor codieCommandProcessor, final String[] commandParts) throws CodieCommandException {
+	public int processRequest(final String[] commandParts) throws CodieCommandException {
 		int speed = getIntParam(commandParts, 1, 10);
 		Integer leftSpeed = null;
 		Integer rightSpeed = null;
@@ -46,13 +46,24 @@ public class DriveSpeedCommand extends MCUCommand {
 			LOGGER.error("Unhandled command type: " + commandParts[0]);
 		}
 		// then revert speed values as Codie stops
-		pack.prepareRequest(this, 2);
+		int ret = pack.prepareRequest(this, 2);
 		pack.addArgument(leftSpeed, ArgumentType.I8); // leftSpeed
 		pack.addArgument(rightSpeed, ArgumentType.I8); // rightSpeed
 		if (sendCommand() == 0) {
 			// update leftSpeed/rightSpeed values
 			getSensorValueStore().updateSensorValue(SensorType.leftSpeed, leftSpeed);
 			getSensorValueStore().updateSensorValue(SensorType.rightSpeed, rightSpeed);
+		}
+		return ret;
+	}
+
+	@Override
+	public void processResponse(final DataPackage response) throws CodieCommandException {
+		int nSuccessful = response.readArgument(0, ArgumentType.U8);
+		if (nSuccessful != 0) {
+			getSensorValueStore().setLastResult(false);
+			getSensorValueStore().updateSensorValue(SensorType.leftSpeed, 0);
+			getSensorValueStore().updateSensorValue(SensorType.rightSpeed, 0);
 		}
 	}
 

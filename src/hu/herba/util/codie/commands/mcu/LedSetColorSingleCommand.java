@@ -23,17 +23,21 @@ import hu.herba.util.codie.model.DataPackage;
  * Replies: nSuccessful: 0 means command has been successfully executed, any other value means error.
  *
  * @author csorbazoli
+ *
+ *         This implementation receives the led index as command parameter
  */
-public class LedSetColorCommand extends MCUCommand {
-	private static final Logger LOGGER = LogManager.getLogger(LedSetColorCommand.class);
+public class LedSetColorSingleCommand extends MCUCommand {
+	private static final Logger LOGGER = LogManager.getLogger(LedSetColorSingleCommand.class);
 
 	@Override
 	public int processRequest(final String[] commandParts) throws CodieCommandException {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
+		int ledIndex = Math.max(Math.min(getIntParam(commandParts, 2, 1), 12), 1);
+		int ledMask = 1 << (ledIndex - 1);
 		String colorName = getStringParam(commandParts, 1, "green");
 		CodieColors color = CodieColors.valueOf(colorName);
 		int ret = pack.prepareRequest(this, 5);
-		pack.addArgument(0x08ff, ArgumentType.U16); // all of the first 12 bits are 1
+		pack.addArgument(ledMask, ArgumentType.U16); // one of the first 12 bits is 1
 		pack.addArgument(color.getHue(), ArgumentType.U8); // hue
 		pack.addArgument(color.getSaturation(), ArgumentType.U8); // saturation
 		pack.addArgument(color.getValue(), ArgumentType.U8); // value
@@ -51,7 +55,7 @@ public class LedSetColorCommand extends MCUCommand {
 
 	@Override
 	public CodieCommandType getCommandType() {
-		return CodieCommandType.LedSetColor;
+		return CodieCommandType.LedSetColorSingle;
 	}
 
 	@Override

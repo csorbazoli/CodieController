@@ -6,8 +6,11 @@ package hu.herba.util.codie.sensors.mcu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import hu.herba.util.codie.CodieCommandException;
 import hu.herba.util.codie.SensorValueStore;
+import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandType;
+import hu.herba.util.codie.model.DataPackage;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -52,6 +55,12 @@ public class SonarGetRangeSensor extends MCUSensor {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
 		// convert mm to cm!
 		sensorValueStore.updateSensorValue(SensorType.distanceSensor, 15);
+	}
+
+	@Override
+	public void processResponse(final DataPackage response) throws CodieCommandException {
+		int rangeValue = response.readArgument(0, ArgumentType.U16);
+		getSensorValueStore().updateSensorValue(SensorType.distanceSensor, rangeValue);
 	}
 
 	@Override

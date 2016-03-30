@@ -42,7 +42,7 @@ public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comp
 		} catch (IOException e) {
 			throw new CodieCommandException(e.getMessage(), e);
 		}
-		getSensorValueStore().updateSensorValue(SensorType.lastResult, ret);
+		getSensorValueStore().setLastResult(ret == 0);
 		return ret;
 	}
 

@@ -12,7 +12,8 @@ public enum CodieCommandType {
 	DriveDistance(0x1061), //
 	DriveTurn(0x1062), //
 	SpeakBeep(0x1064), //
-	LedSetColor(0x1065), //
+	LedSetColor(0x1065), // set led color for all 12 leds
+	LedSetColorSingle(0x1065), // same as LedSetColor but it specifies also a single led by its index
 	// extra commands
 	SetSensorRefreshInterval(0xff), // not handled by Codie, provided by CodieCommandProcessor
 	// sensors

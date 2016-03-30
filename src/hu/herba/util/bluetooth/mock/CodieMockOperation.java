@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Random;
 
 import javax.obex.HeaderSet;
 import javax.obex.Operation;
@@ -17,7 +18,10 @@ import javax.obex.Operation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import hu.herba.util.codie.model.ArgumentType;
+import hu.herba.util.codie.model.CodieCommandBase;
 import hu.herba.util.codie.model.CodieCommandType;
+import hu.herba.util.codie.model.DataPackage;
 
 /**
  * @author zcsorba
@@ -26,15 +30,18 @@ import hu.herba.util.codie.model.CodieCommandType;
 public class CodieMockOperation implements Operation {
 	private static final Logger LOGGER = LogManager.getLogger(CodieMockOperation.class);
 
+	private static final long IMMEDIATE = 100; // 0.1 sec
+
 	private final String type;
 	private InputStream inputStream;
 	private final byte[] buf = new byte[20];
 	private DataInputStream dataInputStream;
-	private OutputStream outputStream;
+	private ByteArrayOutputStream outputStream;
 	private DataOutputStream dataOutputStream;
 	private HeaderSet headerSetReceived;
-	private final int responseCode = 0;
 	private boolean aborted;
+	private final DataPackage pack = new DataPackage();
+	private static final Random rand = new Random(System.currentTimeMillis());
 
 	/**
 	 * @param headerSet
@@ -47,6 +54,7 @@ public class CodieMockOperation implements Operation {
 			typeParam = "binary";
 		}
 		type = typeParam;
+		headerSetReceived = headerSet;
 	}
 
 	@Override
@@ -125,42 +133,350 @@ public class CodieMockOperation implements Operation {
 	@Override
 	public void sendHeaders(final HeaderSet headerset) throws IOException {
 		headerSetReceived = headerset;
-		processOperation();
 	}
 
 	@Override
 	public int getResponseCode() throws IOException {
-		return responseCode;
+		return processOperation();
 	}
 
 	/**
 	 * This is the actual method that is doing the requested operation.
 	 */
-	private void processOperation() throws IOException {
+	private int processOperation() throws IOException {
+		int ret = 0;
 		CodieCommandType operation;
+		byte[] dataPackage = outputStream.toByteArray();
 		try {
-			operation = checkHeaderContent();
+			operation = checkHeaderContent(dataPackage);
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e);
 		}
 		switch (operation) {
-		case DriveSpeed: // nothing to do
+		case Null:
+		case Echo:
+			// nothing to do
+			break;
+		case BatteryGetSoc:
+			ret = handleBatteryGetSoc(dataPackage);
+			break;
+		case DriveDistance:
+			ret = handleDriveDistance(dataPackage);
+			break;
+		case DriveSpeed:
+			ret = handleDriveSpeed(dataPackage);
+			break;
+		case DriveTurn:
+			ret = handleDriveTurn(dataPackage);
+			break;
+		case LedSetColor:
+			ret = handleLedSetColor(dataPackage);
+			break;
+		case LightSenseGetRaw:
+			ret = handleLightSenseGetRaw(dataPackage);
+			break;
+		case LineGetRaw:
+			ret = handleLineGetRaw(dataPackage);
+			break;
+		case MicGetRaw:
+			ret = handleMicGetRaw(dataPackage);
+			break;
+		case SonarGetRange:
+			ret = handleSonarGetRange(dataPackage);
+			break;
+		case SpeakBeep:
+			ret = handleSpeakBeep(dataPackage);
 			break;
 		default:
 			LOGGER.warn("Operation type " + operation + " is not implemented in " + this.getClass().getSimpleName());
 		}
+		return ret;
 	}
 
 	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private int handleSpeakBeep(final byte[] dataPackage) {
+		// nothing to do, result is always 0
+		LOGGER.info("DING-DONG");
+		pack.prepareResponse(dataPackage, 1);
+		pack.addArgument(0, ArgumentType.U8);
+		setResponseTimeout(IMMEDIATE);
+		return 0;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private int handleSonarGetRange(final byte[] dataPackage) {
+		LOGGER.info("SONAR...");
+		pack.prepareResponse(dataPackage, 2);
+		// TODO handle virtual map where mock codie can move and we can measure the distance from the virtual walls
+		pack.addArgument(50, ArgumentType.U16);
+		setResponseTimeout(300);
+		return 0;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private int handleMicGetRaw(final byte[] dataPackage) {
+		LOGGER.info("MIC");
+		pack.prepareResponse(dataPackage, 2);
+		pack.addArgument(getRandom(1000, 1500), ArgumentType.U16);
+		setResponseTimeout(IMMEDIATE);
+		return 0;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private int handleLineGetRaw(final byte[] dataPackage) {
+		LOGGER.info("ReadLines");
+		pack.prepareResponse(dataPackage, 4);
+		pack.addArgument(getRandom(0, 4000), ArgumentType.U16);
+		pack.addArgument(getRandom(0, 4000), ArgumentType.U16);
+		setResponseTimeout(IMMEDIATE);
+		return 0;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private int handleLightSenseGetRaw(final byte[] dataPackage) {
+		LOGGER.info("Light");
+		pack.prepareResponse(dataPackage, 2);
+		// 0-brightest, 4095-darkest
+		pack.addArgument(getRandom(2000, 3000), ArgumentType.U16);
+		setResponseTimeout(IMMEDIATE);
+		return 0;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private int handleLedSetColor(final byte[] dataPackage) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private int handleDriveTurn(final byte[] dataPackage) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private int handleDriveSpeed(final byte[] dataPackage) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private int handleDriveDistance(final byte[] dataPackage) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private int handleBatteryGetSoc(final byte[] dataPackage) {
+		LOGGER.info("BATTERY");
+		pack.prepareResponse(dataPackage, 1);
+		pack.addArgument((int) (System.currentTimeMillis() / 3000 % 100), ArgumentType.U8);
+		setResponseTimeout(IMMEDIATE);
+		return 0;
+	}
+
+	/**
+	 * @param dataPackage
 	 * @return OperationType specified in the header data
 	 * @throws IllegalArgumentException
 	 *             if operation type is unknown, or header content is invalid (e.g. destination/receiver is invalid)
 	 */
-	private CodieCommandType checkHeaderContent() throws IllegalArgumentException {
+	private CodieCommandType checkHeaderContent(final byte[] dataPackage) throws IllegalArgumentException {
 		CodieCommandType ret = CodieCommandType.DriveSpeed;
-		// TODO check header content
+		// check info APP -> MCU/BLE/broadcast
+		int destination = checkInfo(dataPackage);
 		// determine operation type
+		switch (destination) {
+		case CodieCommandBase.TO_MCU:
+			ret = getMCUCommand(dataPackage);
+			break;
+		case CodieCommandBase.TO_BLE:
+			ret = getBLECommand(dataPackage);
+			break;
+		}
 		return ret;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private CodieCommandType getBLECommand(final byte[] dataPackage) {
+		if (dataPackage.length < 5) {
+			throw new IllegalArgumentException("Received data package does not contain the CMD bytes!");
+		}
+		CodieCommandType ret = null;
+		// only Null and Echo commands are handled!
+		int cmdByte = dataPackage[3] << 8 & dataPackage[4];
+		switch (cmdByte) {
+		case 0x00: // Null command
+			ret = CodieCommandType.Null;
+			break;
+		case 0x01: // Echo command
+			ret = CodieCommandType.Echo;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid BLE command type 0x" + Integer.toHexString(cmdByte) + "!");
+		}
+		return ret;
+	}
+
+	/**
+	 * @param dataPackage
+	 * @return
+	 */
+	private CodieCommandType getMCUCommand(final byte[] dataPackage) {
+		if (dataPackage.length < 5) {
+			throw new IllegalArgumentException("Received data package does not contain the CMD bytes!");
+		}
+		CodieCommandType ret = null;
+		// only Null and Echo commands are handled!
+		int cmdByte = (dataPackage[4] << 8) + dataPackage[3];
+		switch (cmdByte) {
+		case 0x00: // Null command
+			ret = CodieCommandType.Null;
+			break;
+		case 0x01: // Echo command
+			ret = CodieCommandType.Echo;
+			break;
+		case 0x1060:
+			ret = CodieCommandType.DriveSpeed;
+			break;
+		case 0x1061:
+			ret = CodieCommandType.DriveDistance;
+			break;
+		case 0x1062:
+			ret = CodieCommandType.DriveTurn;
+			break;
+		case 0x1063:
+			ret = CodieCommandType.SonarGetRange;
+			break;
+		case 0x1064:
+			ret = CodieCommandType.SpeakBeep;
+			break;
+		case 0x1065:
+			ret = CodieCommandType.LedSetColor;
+			break;
+		case 0x1069:
+			ret = CodieCommandType.BatteryGetSoc;
+			break;
+		case 0x106a:
+			ret = CodieCommandType.LightSenseGetRaw;
+			break;
+		case 0x106b:
+			ret = CodieCommandType.LineGetRaw;
+			break;
+		case 0x106c:
+			ret = CodieCommandType.MicGetRaw;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid MCU command type 0x" + Integer.toHexString(cmdByte) + "!");
+		}
+		return ret;
+	}
+
+	private int checkInfo(final byte[] dataPackage) throws IllegalArgumentException {
+		if (dataPackage.length < 3) {
+			throw new IllegalArgumentException("Received data package does not contain the INFO byte!");
+		}
+		// destination could be CodieCommandBase.TO_MCU/TO_BLE
+		byte infoByte = dataPackage[0];
+		int dest = (infoByte & 0x0c0) >> 6;
+		switch (dest) {
+		case 0: // APP
+			throw new IllegalArgumentException("Invalid INFO byte (0x" + Integer.toHexString(infoByte) + ")! Destination should not be APP!");
+		case 1: // MCU
+			dest = CodieCommandBase.TO_MCU;
+			LOGGER.debug("Route: APP -> MCU");
+			break;
+		case 2: // BLE
+			dest = CodieCommandBase.TO_BLE;
+			LOGGER.debug("Route: APP -> BLE");
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid INFO byte (0x" + Integer.toHexString(infoByte) + ") - unknown!");
+		}
+		// source should be APP
+		int source = infoByte & 0x30;
+		if (source != 0) {
+			throw new IllegalArgumentException("Invalid INFO byte (0x" + Integer.toHexString(infoByte) + ")! Source should be APP!");
+		}
+		// Priority could be high/normal
+		int prio = infoByte & 0x0f;
+		switch (prio) {
+		case 0: // normal
+			LOGGER.debug("Prio: NORMAL");
+			break;
+		case 8: // high
+			LOGGER.debug("Prio: HIGH");
+			break;
+		default:
+			LOGGER.warn("Invalid INFO byte (0x" + Integer.toHexString(infoByte) + ")! Priority should use only the P3 bit!");
+		}
+		int seq = (dataPackage[2] << 8) + dataPackage[1];
+		LOGGER.debug("Sequence: " + seq);
+		return dest;
+	}
+
+	protected void sendResponse() {
+		// TODO send back dataPackage constructed by command handler methods
+	}
+
+	/**
+	 * @param immediate2
+	 */
+	private void setResponseTimeout(final long timeout) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				waiting(timeout);
+				sendResponse();
+			}
+
+			private synchronized void waiting(final long timeout) {
+				try {
+					wait(timeout);
+				} catch (InterruptedException e) {
+					LOGGER.warn("Waiting (" + timeout + ") interrupted: " + e.getMessage(), e);
+				}
+
+			}
+		}).start();
+
+	}
+
+	private int getRandom(final int from, final int to) {
+		return from + rand.nextInt(to - from);
 	}
 
 }

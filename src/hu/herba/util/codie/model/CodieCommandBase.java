@@ -65,4 +65,13 @@ public interface CodieCommandBase {
 	 */
 	CodieCommandType getCommandType();
 
+	/**
+	 * @return sender byte
+	 */
+	CodieRole getSender();
+
+	/**
+	 * @return destination byte
+	 */
+	CodieRole getDestination();
 }

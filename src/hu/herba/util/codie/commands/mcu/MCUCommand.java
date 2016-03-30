@@ -4,6 +4,7 @@
 package hu.herba.util.codie.commands.mcu;
 
 import hu.herba.util.codie.model.AbstractCodieCommand;
+import hu.herba.util.codie.model.CodieRole;
 
 /**
  * MCU commands can be executed only on the MCU.
@@ -12,8 +13,13 @@ import hu.herba.util.codie.model.AbstractCodieCommand;
  */
 public abstract class MCUCommand extends AbstractCodieCommand {
 	@Override
-	public byte getInfoByte(final boolean highPrio) {
-		return getInfoByte(FROM_APP, TO_MCU, highPrio);
+	public CodieRole getSender() {
+		return CodieRole.APP;
+	}
+
+	@Override
+	public CodieRole getDestination() {
+		return CodieRole.MCU;
 	}
 
 }

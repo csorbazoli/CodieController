@@ -34,10 +34,10 @@ public class DriveDistanceBySpeedCommand extends DriveDistanceCommand {
 		int distance = getIntParam(commandParts, 1, 5) * 10;
 		int speed = getIntParam(commandParts, 2, 10);
 		// then revert speed values as Codie stops
-		prepareDataPackage(4);
-		addArgument(distance, ArgumentType.U16);
-		addArgument(speed, ArgumentType.I8); // leftSpeed
-		addArgument(speed, ArgumentType.I8); // rightSpeed
+		pack.prepareRequest(this, 4);
+		pack.addArgument(distance, ArgumentType.U16);
+		pack.addArgument(speed, ArgumentType.I8); // leftSpeed
+		pack.addArgument(speed, ArgumentType.I8); // rightSpeed
 		// update leftSpeed/rightSpeed values
 		getSensorValueStore().updateSensorValue(SensorType.leftSpeed, speed);
 		getSensorValueStore().updateSensorValue(SensorType.rightSpeed, speed);

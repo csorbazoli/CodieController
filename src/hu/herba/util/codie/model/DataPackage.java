@@ -87,6 +87,7 @@ public class DataPackage {
 	public void addArgument(final int value, final ArgumentType argType) {
 		switch (argType) {
 		case I8:
+			// TODO handle negative values!
 			dataPackage[packageLength++] = (byte) (value & 0x00FF);
 			break;
 		case U8:

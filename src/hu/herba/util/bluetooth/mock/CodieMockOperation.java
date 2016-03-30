@@ -262,7 +262,12 @@ public class CodieMockOperation implements Operation {
 	 * @return
 	 */
 	private int handleLedSetColor(final byte[] dataPackage) {
-		// TODO Auto-generated method stub
+		// TODO ledMask[u16], hue[u8], saturation[u8], value[u8]
+		// LedMask can be used to set leds one-by-one!!! :)
+		LOGGER.info("SET LED COLOR...");
+		pack.prepareResponse(dataPackage, 1);
+		pack.addArgument(0, ArgumentType.U8);
+		setResponseTimeout(IMMEDIATE);
 		return 0;
 	}
 
@@ -271,7 +276,12 @@ public class CodieMockOperation implements Operation {
 	 * @return
 	 */
 	private int handleDriveTurn(final byte[] dataPackage) {
-		// TODO Auto-generated method stub
+		// TODO get degree u16 and speed i8
+		// TODO handle virtual map where mock codie can move
+		LOGGER.info("TURN....");
+		pack.prepareResponse(dataPackage, 1);
+		pack.addArgument(0, ArgumentType.U8);
+		setResponseTimeout(2000);
 		return 0;
 	}
 
@@ -280,7 +290,12 @@ public class CodieMockOperation implements Operation {
 	 * @return
 	 */
 	private int handleDriveSpeed(final byte[] dataPackage) {
-		// TODO Auto-generated method stub
+		// TODO get speedLeft[i8](%), speedRight[i8](%)
+		// TODO handle virtual map where mock codie can move
+		LOGGER.info("SPEED....");
+		pack.prepareResponse(dataPackage, 1);
+		pack.addArgument(0, ArgumentType.U8);
+		setResponseTimeout(2000);
 		return 0;
 	}
 
@@ -289,7 +304,12 @@ public class CodieMockOperation implements Operation {
 	 * @return
 	 */
 	private int handleDriveDistance(final byte[] dataPackage) {
-		// TODO Auto-generated method stub
+		// TODO get distance[u16](mm), speedLeft[i8](%), speedRight[i8](%)
+		// TODO handle virtual map where mock Codie can move
+		LOGGER.info("DISTANCE....");
+		pack.prepareResponse(dataPackage, 1);
+		pack.addArgument(0, ArgumentType.U8);
+		setResponseTimeout(2000);
 		return 0;
 	}
 

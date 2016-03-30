@@ -9,10 +9,10 @@ public enum CodieCommandType {
 	Echo(0x0001), //
 	DriveSpeed(0x1060, "DriveSpeed" + CodieCommandBase.SEPARATOR + "DriveSpeedLeft" + CodieCommandBase.SEPARATOR + "DriveSpeedRight"), //
 	DriveDistanceBySpeed(0x1060), // actually, it is the same command from Codie point of view as DriveDistance
-	DriveDistance(0x0161), //
-	DriveTurn(0x0162), //
-	SpeakBeep(0x0164), //
-	LedSetColor(0x0165), //
+	DriveDistance(0x1061), //
+	DriveTurn(0x1062), //
+	SpeakBeep(0x1064), //
+	LedSetColor(0x1065), //
 	// extra commands
 	SetSensorRefreshInterval(0xff), // not handled by Codie, provided by CodieCommandProcessor
 	// sensors

@@ -200,7 +200,7 @@ public class CodieMockOperation implements Operation {
 	 */
 	private int handleSpeakBeep(final byte[] dataPackage) {
 		// nothing to do, result is always 0
-		LOGGER.info("DING-DONG");
+		LOGGER.trace("DING-DONG");
 		pack.prepareResponse(dataPackage, 1);
 		pack.addArgument(0, ArgumentType.U8);
 		setResponseTimeout(IMMEDIATE);
@@ -212,7 +212,7 @@ public class CodieMockOperation implements Operation {
 	 * @return
 	 */
 	private int handleSonarGetRange(final byte[] dataPackage) {
-		LOGGER.info("SONAR...");
+		LOGGER.trace("SONAR...");
 		pack.prepareResponse(dataPackage, 2);
 		// TODO handle virtual map where mock codie can move and we can measure the distance from the virtual walls
 		pack.addArgument(50, ArgumentType.U16);
@@ -225,7 +225,7 @@ public class CodieMockOperation implements Operation {
 	 * @return
 	 */
 	private int handleMicGetRaw(final byte[] dataPackage) {
-		LOGGER.info("MIC");
+		LOGGER.trace("MIC");
 		pack.prepareResponse(dataPackage, 2);
 		pack.addArgument(getRandom(1000, 1500), ArgumentType.U16);
 		setResponseTimeout(IMMEDIATE);
@@ -237,7 +237,7 @@ public class CodieMockOperation implements Operation {
 	 * @return
 	 */
 	private int handleLineGetRaw(final byte[] dataPackage) {
-		LOGGER.info("ReadLines");
+		LOGGER.trace("ReadLines...");
 		pack.prepareResponse(dataPackage, 4);
 		pack.addArgument(getRandom(0, 4000), ArgumentType.U16);
 		pack.addArgument(getRandom(0, 4000), ArgumentType.U16);
@@ -250,7 +250,7 @@ public class CodieMockOperation implements Operation {
 	 * @return
 	 */
 	private int handleLightSenseGetRaw(final byte[] dataPackage) {
-		LOGGER.info("Light");
+		LOGGER.trace("Light");
 		pack.prepareResponse(dataPackage, 2);
 		// 0-brightest, 4095-darkest
 		pack.addArgument(getRandom(2000, 3000), ArgumentType.U16);
@@ -319,7 +319,7 @@ public class CodieMockOperation implements Operation {
 	 * @return
 	 */
 	private int handleBatteryGetSoc(final byte[] dataPackage) {
-		LOGGER.info("BATTERY");
+		LOGGER.trace("BATTERY");
 		pack.prepareResponse(dataPackage, 1);
 		pack.addArgument((int) ((System.currentTimeMillis() / 3000) % 100), ArgumentType.U8);
 		setResponseTimeout(IMMEDIATE);
@@ -438,7 +438,7 @@ public class CodieMockOperation implements Operation {
 			throw new IllegalArgumentException("Invalid INFO byte (0x" + Integer.toHexString(infoByte) + ")! Destination should not be APP!");
 		case 1: // MCU
 			dest = CodieCommandBase.TO_MCU;
-			LOGGER.debug("Route: APP -> MCU");
+			LOGGER.trace("Route: APP -> MCU");
 			break;
 		case 2: // BLE
 			dest = CodieCommandBase.TO_BLE;

@@ -153,32 +153,35 @@ public class CodieSensorPollService implements SensorValueStore {
 	 * @param parseInt
 	 */
 	public void setTimerInterval(final SensorType sensorType, final int interval) {
+		int refreshInterval = interval;
 		if (interval < 100) {
 			LOGGER.warn("Refresh interval for sensors should not be less the 100ms! (requested value was: " + interval + ")");
+			refreshInterval = 100;
 		}
+		updateSensorValue(SensorType.refreshInterval, refreshInterval);
 		switch (sensorType) {
 		case allSensors:
-			setTimer(BatteryGetSocSensor.getInstance(), interval);
-			setTimer(LightSenseGetRawSensor.getInstance(), interval);
-			setTimer(LineGetRawSensor.getInstance(), interval);
-			setTimer(MicGetRawSensor.getInstance(), interval);
-			setTimer(SonarGetRangeSensor.getInstance(), interval);
+			setTimer(BatteryGetSocSensor.getInstance(), refreshInterval);
+			setTimer(LightSenseGetRawSensor.getInstance(), refreshInterval);
+			setTimer(LineGetRawSensor.getInstance(), refreshInterval);
+			setTimer(MicGetRawSensor.getInstance(), refreshInterval);
+			setTimer(SonarGetRangeSensor.getInstance(), refreshInterval);
 			break;
 		case batterySensor:
-			setTimer(BatteryGetSocSensor.getInstance(), interval);
+			setTimer(BatteryGetSocSensor.getInstance(), refreshInterval);
 			break;
 		case distanceSensor:
-			setTimer(SonarGetRangeSensor.getInstance(), interval);
+			setTimer(SonarGetRangeSensor.getInstance(), refreshInterval);
 			break;
 		case lightSensor:
-			setTimer(LightSenseGetRawSensor.getInstance(), interval);
+			setTimer(LightSenseGetRawSensor.getInstance(), refreshInterval);
 			break;
 		case lineLeft:
 		case lineRight:
-			setTimer(LineGetRawSensor.getInstance(), interval);
+			setTimer(LineGetRawSensor.getInstance(), refreshInterval);
 			break;
 		case micSensor:
-			setTimer(MicGetRawSensor.getInstance(), interval);
+			setTimer(MicGetRawSensor.getInstance(), refreshInterval);
 			break;
 		default:
 			LOGGER.warn("Unhandled sensor type: " + sensorType);
@@ -199,7 +202,7 @@ public class CodieSensorPollService implements SensorValueStore {
 			sensors.put(sensor, interval);
 		}
 		SensorRefreshTimer timer = timers.get(sensor);
-		if (timer == null && interval > 0) {
+		if ((timer == null) && (interval > 0)) {
 			timer = new SensorRefreshTimer(this, sensor.getCommandType().name(), IS_DAEMON);
 			timers.put(sensor, timer);
 		}

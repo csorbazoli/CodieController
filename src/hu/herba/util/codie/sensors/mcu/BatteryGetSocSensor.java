@@ -48,7 +48,7 @@ public class BatteryGetSocSensor extends MCUSensor {
 	@Override
 	public void processResponse(final DataPackage response) throws CodieCommandException {
 		int stateOfCharge = response.readArgument(0, ArgumentType.U8);
-		getSensorValueStore().updateSensorValue(SensorType.micSensor, stateOfCharge);
+		getSensorValueStore().updateSensorValue(SensorType.batterySensor, stateOfCharge);
 	}
 
 	@Override

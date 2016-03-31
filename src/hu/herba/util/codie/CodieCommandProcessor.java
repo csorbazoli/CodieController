@@ -102,21 +102,17 @@ public class CodieCommandProcessor {
 		String[] parts = commandDetails.split("/");
 		if ((parts.length > 0) && !getCommandName(parts).isEmpty()) {
 			String commandName = getCommandName(parts);
-			if ("reset_all".equals(commandName)) {
-				doResetAll();
-			} else {
-				CodieCommand command;
-				try {
-					command = commands.get(commandName).newInstance();
-					if (command == null) {
-						LOGGER.warn("Unhandled command type: " + commandName);
-					} else {
-						processCommand(command, parts);
-						return;
-					}
-				} catch (InstantiationException | IllegalAccessException e) {
-					throw new IOException("Failed to process command '" + commandName + "': " + e.getMessage(), e);
+			CodieCommand command;
+			try {
+				command = commands.get(commandName).newInstance();
+				if (command == null) {
+					LOGGER.warn("Unhandled command type: " + commandName);
+				} else {
+					processCommand(command, parts);
+					return;
 				}
+			} catch (InstantiationException | IllegalAccessException e) {
+				throw new IOException("Failed to process command '" + commandName + "': " + e.getMessage(), e);
 			}
 		}
 	}
@@ -174,9 +170,11 @@ public class CodieCommandProcessor {
 		return ret;
 	}
 
-	private void doResetAll() {
-		LOGGER.info("Reset ALL...");
-		// TODO stop Codie
+	public void doReset() {
+		LOGGER.info("Reset command processor...");
+		// clear command lists
+		busyCommands.clear();
+		commandSeq2Command.clear();
 	}
 
 	/**

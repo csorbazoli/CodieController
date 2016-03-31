@@ -84,11 +84,7 @@ public class CodieSensorPollService implements SensorValueStore {
 	 * @param sensor
 	 */
 	private void registerSensor(final CodieSensor sensor) {
-		if (sensors.containsKey(sensor)) {
-			LOGGER.warn("Sensor already registered: " + sensor);
-		}
 		sensors.put(sensor, DEF_REFRESH_INTERVAL);
-
 	}
 
 	@Override
@@ -136,6 +132,11 @@ public class CodieSensorPollService implements SensorValueStore {
 			timer.schedule(item.getKey(), item.getValue());
 			timers.put(item.getKey(), timer);
 		}
+	}
+
+	public void doReset() {
+		cancelTimers();
+		initSensors();
 	}
 
 	public void cancelTimers() {

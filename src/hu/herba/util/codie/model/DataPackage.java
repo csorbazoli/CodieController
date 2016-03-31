@@ -29,7 +29,7 @@ public class DataPackage {
 		}
 	}
 
-	private static int getNextSequenceNumber() {
+	private static synchronized int getNextSequenceNumber() {
 		int ret = ++seq;
 		if (ret > 0xFFFF) {
 			// restart sequence

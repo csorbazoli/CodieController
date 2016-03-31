@@ -21,8 +21,9 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class CodieMockClientSession implements ClientSession {
+
 	private static final Logger LOGGER = LogManager.getLogger(CodieMockClientSession.class);
-	private static final String CODIE_MOCK_CONNECTION = "Codie mock connection: ";
+	public static final String CODIE_MOCK_CONNECTION = "Codie mock connection: ";
 	private static long connectionIdx = 0l;
 	private Long connectionId;
 	private final Map<HeaderSet, CodieMockOperation> operations = Collections.synchronizedMap(new HashMap<HeaderSet, CodieMockOperation>());
@@ -41,37 +42,7 @@ public class CodieMockClientSession implements ClientSession {
 	@Override
 	public HeaderSet createHeaderSet() {
 		LOGGER.trace(CODIE_MOCK_CONNECTION + "create header set...");
-		HeaderSet ret = new HeaderSet() {
-			@Override
-			public void createAuthenticationChallenge(final String s, final boolean flag, final boolean flag1) {
-				LOGGER.trace(CODIE_MOCK_CONNECTION + "-headerSet: createAuthenticationChallenge");
-			}
-
-			@Override
-			public Object getHeader(final int idx) throws IOException {
-				LOGGER.trace(CODIE_MOCK_CONNECTION + "-headerSet: getHeader#" + idx);
-				return null;
-			}
-
-			@Override
-			public int[] getHeaderList() throws IOException {
-				LOGGER.trace(CODIE_MOCK_CONNECTION + "-headerSet: getHeaderList");
-				return null;
-			}
-
-			@Override
-			public int getResponseCode() throws IOException {
-				LOGGER.trace(CODIE_MOCK_CONNECTION + "-headerSet: getResponseCode");
-				return 0;
-			}
-
-			@Override
-			public void setHeader(final int idx, final Object obj) {
-				LOGGER.trace(CODIE_MOCK_CONNECTION + "-headerSet: setHeader " + idx + " = " + obj);
-			}
-
-		};
-		return ret;
+		return new MockHeaderSet();
 	}
 
 	@Override

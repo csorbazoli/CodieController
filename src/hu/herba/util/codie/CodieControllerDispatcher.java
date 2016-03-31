@@ -91,8 +91,9 @@ public class CodieControllerDispatcher extends HttpServlet {
 	}
 
 	private void resetDevice() {
-		LOGGER.info("TODO need to reset connection to Codie");
-		CodieSensorPollService.getInstance().cancelTimers();
+		LOGGER.info("Reset connection to Codie...");
+		CodieSensorPollService.getInstance().doReset();
+		CodieCommandProcessor.getInstance().doReset();
 	}
 
 	@Override

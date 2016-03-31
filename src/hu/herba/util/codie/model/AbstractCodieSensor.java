@@ -14,7 +14,7 @@ import hu.herba.util.codie.SensorValueStore;
 public abstract class AbstractCodieSensor extends AbstractCodieCommandBase implements CodieSensor {
 	@Override
 	public void poll(final SensorValueStore sensorValueStore) throws CodieCommandException {
-		getLogger().info("Processing " + getClass().getSimpleName() + "...");
+		getLogger().trace("Processing " + getClass().getSimpleName() + "...");
 		sendCommand(request.prepareRequest(this, 0));
 	}
 

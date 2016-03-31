@@ -465,11 +465,12 @@ public class CodieMockOperation implements Operation {
 			LOGGER.warn("Invalid INFO byte (0x" + Integer.toHexString(infoByte) + ")! Priority should use only the P3 bit!");
 		}
 		int seq = (dataPackage[2] << 8) + dataPackage[1];
-		LOGGER.trace("Sequence: " + seq);
+		LOGGER.info("Sequence: " + seq);
 		return dest;
 	}
 
 	protected void sendResponse() {
+		LOGGER.info("Send response(" + hashCode() + "): " + pack.readResponseSequence());
 		// send back dataPackage constructed by command handler methods
 		CodieCommandProcessor.getInstance().processResponse(pack.getPackage());
 	}

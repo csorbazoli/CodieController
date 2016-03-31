@@ -125,15 +125,32 @@ public class CodieCommandProcessor {
 		// response.addArgument(0, ArgumentType.U16);
 		// response.addArgument(0, ArgumentType.U16);
 		int origSequence = response.readResponseSequence();
-		CodieCommandBase origCommand = commandSeq2Command.get(origSequence);
+		CodieCommandBase origCommand = commandSeq2Command.remove(origSequence);
 		if (origCommand == null) {
 			LOGGER.warn("Original command not found for response with seq=" + origSequence + "!");
 		} else {
 			try {
+				removeFromBusy(origCommand);
 				origCommand.processResponse(response);
 			} catch (CodieCommandException e) {
 				LOGGER.error("Failed to process response for seq=" + origSequence + ": " + e.getMessage(), e);
 			}
+		}
+	}
+
+	/**
+	 * @param origCommand
+	 */
+	private void removeFromBusy(final CodieCommandBase origCommand) {
+		if ((origCommand != null) && (origCommand instanceof CodieCommand) && ((CodieCommand) origCommand).isWait()) {
+			for (Map.Entry<Integer, CodieCommandBase> entry : busyCommands.entrySet()) {
+				if (origCommand.equals(entry.getValue())) {
+					LOGGER.debug("BusyCommands.remove: " + entry.getKey());
+					busyCommands.remove(entry.getKey());
+					return;
+				}
+			}
+			LOGGER.warn("BusyCommand not found for " + origCommand);
 		}
 	}
 

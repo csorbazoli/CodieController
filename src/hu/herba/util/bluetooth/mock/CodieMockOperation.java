@@ -29,6 +29,16 @@ import hu.herba.util.codie.model.DataPackage;
  *
  */
 public class CodieMockOperation implements Operation {
+	/**
+	 *
+	 */
+	private static final int MAX_LIGHT = 4000;
+
+	/**
+	 *
+	 */
+	private static final int MIN_LIGHT = 500;
+
 	private static final Logger LOGGER = LogManager.getLogger(CodieMockOperation.class);
 
 	private static final long IMMEDIATE = 100; // 0.1 sec
@@ -43,6 +53,9 @@ public class CodieMockOperation implements Operation {
 	private boolean aborted;
 	private final DataPackage pack = new DataPackage();
 	private static final Random rand = new Random(System.currentTimeMillis());
+
+	private static final int MIN_DIST = 20;
+	private static final int MAX_DIST = 100;
 
 	/**
 	 * @param headerSet
@@ -215,9 +228,16 @@ public class CodieMockOperation implements Operation {
 		LOGGER.trace("SONAR...");
 		pack.prepareResponse(dataPackage, 2);
 		// TODO handle virtual map where mock codie can move and we can measure the distance from the virtual walls
-		pack.addArgument(50, ArgumentType.U16);
+
+		int randomDistance = getRandomValue(MIN_DIST, MAX_DIST);
+		pack.addArgument(randomDistance, ArgumentType.U16);
 		setResponseTimeout(300);
 		return 0;
+	}
+
+	private int getRandomValue(final int min, final int max) {
+		int maxDiff = max - min;
+		return (int) (min + Math.abs((2 * ((System.currentTimeMillis() / 1000) % maxDiff)) - maxDiff));
 	}
 
 	/**
@@ -253,7 +273,7 @@ public class CodieMockOperation implements Operation {
 		LOGGER.trace("Light");
 		pack.prepareResponse(dataPackage, 2);
 		// 0-brightest, 4095-darkest
-		pack.addArgument(getRandom(2000, 3000), ArgumentType.U16);
+		pack.addArgument(getRandomValue(MIN_LIGHT, MAX_LIGHT), ArgumentType.U16);
 		setResponseTimeout(IMMEDIATE);
 		return 0;
 	}

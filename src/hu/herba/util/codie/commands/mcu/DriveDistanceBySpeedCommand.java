@@ -41,10 +41,7 @@ public class DriveDistanceBySpeedCommand extends DriveDistanceCommand {
 		// update leftSpeed/rightSpeed values
 		getSensorValueStore().updateSensorValue(SensorType.leftSpeed, speed);
 		getSensorValueStore().updateSensorValue(SensorType.rightSpeed, speed);
-		if (sendCommand() == 0) {
-			getSensorValueStore().updateSensorValue(SensorType.leftSpeed, 0);
-			getSensorValueStore().updateSensorValue(SensorType.rightSpeed, 0);
-		}
+		sendCommand();
 		return ret;
 	}
 

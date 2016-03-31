@@ -8,19 +8,7 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v8.0">
-		<attributes>
-			<attribute name="owner.project.facets" value="jst.web"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
-	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="lib" path="lib/bluecove-2.1.1-SNAPSHOT.jar" sourcepath="D:/work/git/bluecove_2_1_0/bluecove"/>
-	<classpathentry kind="lib" path="lib/jlhttp-2.1.jar" sourcepath="D:/Personal/Scratch/jlhttp-2.1-distribution.zip">
-		<attributes>
-			<attribute name="source_encoding" value="UTF-8"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/log4j-api-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-core-2.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>

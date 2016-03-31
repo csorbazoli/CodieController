@@ -4,17 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.obex.ClientSession;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,27 +17,16 @@ import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
 /**
  * Servlet implementation class CodieControllerDispatcher
  */
-@WebServlet(description = "Codie command dispatcher", urlPatterns = { "/" })
-public class CodieControllerDispatcher extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+public class CodieControllerDispatcher {
 	private static final Logger LOGGER = LogManager.getLogger(CodieControllerDispatcher.class);
 
-	private Object conn;
+	private ClientSession conn;
 
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
 	public CodieControllerDispatcher() {
 		super();
-	}
-
-	/**
-	 * @see Servlet#init(ServletConfig)
-	 */
-	@Override
-	public void init(final ServletConfig config) throws ServletException {
-		LOGGER.info("CodieController initialized");
-		initConnection();
 	}
 
 	private void initConnection() {
@@ -55,16 +37,6 @@ public class CodieControllerDispatcher extends HttpServlet {
 				CodieSensorPollService.getInstance().resetTimers(conn);
 			}
 		}
-	}
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	@Override
-	protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-		// LOGGER.info(request.getContextPath() + ", request = " + servletPath);
-		PrintWriter out = response.getWriter();
-		handleRequest(request.getServletPath(), out);
 	}
 
 	public void handleRequest(final String servletPath, final Writer out) throws IOException {
@@ -140,14 +112,6 @@ public class CodieControllerDispatcher extends HttpServlet {
 			}
 		}
 
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	@Override
-	protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
-		doGet(request, response);
 	}
 
 }

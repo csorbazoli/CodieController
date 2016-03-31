@@ -145,8 +145,11 @@ public class CodieCommandProcessor {
 		if ((origCommand != null) && (origCommand instanceof CodieCommand) && ((CodieCommand) origCommand).isWait()) {
 			for (Map.Entry<Integer, CodieCommandBase> entry : busyCommands.entrySet()) {
 				if (origCommand.equals(entry.getValue())) {
-					LOGGER.debug("BusyCommands.remove: " + entry.getKey());
-					busyCommands.remove(entry.getKey());
+					LOGGER.trace("BusyCommands.remove: " + entry.getKey());
+					if (busyCommands.remove(entry.getKey()) == null) {
+						LOGGER.warn("Failed to remove busyCommand: " + entry.getKey());
+					}
+					LOGGER.debug("BusyCommands: " + busyCommands.size());
 					return;
 				}
 			}
@@ -224,8 +227,6 @@ public class CodieCommandProcessor {
 		for (Map.Entry<SensorType, String> sensorValue : CodieSensorPollService.getInstance().getSensorValues()) {
 			out.append(sensorValue.getKey().getSensorName() + " " + sensorValue.getValue() + "\n");
 		}
-
-		out.append("lastResult " + lastResult + "\n");
 	}
 
 	public void commandStarted(final CodieCommandBase command, final Integer uniqueCommandId, final int commandSeq) {

@@ -35,7 +35,7 @@ public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comp
 	protected int sendCommand() throws CodieCommandException {
 		int ret = 0;
 		try {
-			getLogger().debug("SendCommand: " + toString() + "#" + hashCode());
+			getLogger().trace("SendCommand: " + toString() + "#" + hashCode());
 			// push data on channel
 			ret = sendByteArray(CodieBluetoothConnectionFactory.connect(), getCommandType().getCommandName(), getRequestDataPackage(), "binary");
 		} catch (IOException e) {

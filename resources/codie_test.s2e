@@ -14,8 +14,8 @@
 	
 	[" ", "Set sensor refresh: %d.refreshIntervalMenu ms on %m.sensorTypeMenu", "SetSensorRefreshInterval", 500, "allSensors"],
 	["r", "LastResult", "lastResult"],
-	["r", "Left wheel (%)", "leftspeed"],
-	["r", "Right wheel (%)", "rightspeed"],
+	["r", "Left wheel (%)", "leftSpeed"],
+	["r", "Right wheel (%)", "rightSpeed"],
 	["r", "Refresh (ms)", "refreshInterval"],
 	
 	["r", "Sonar range (cm)", "sonarRange"],

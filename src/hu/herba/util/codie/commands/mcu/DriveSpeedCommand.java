@@ -40,7 +40,7 @@ public class DriveSpeedCommand extends MCUCommand {
 			break;
 		case "DriveSpeedRight":
 			rightSpeed = speed;
-			rightSpeed = getSensorValueStore().getSensorValueInt(SensorType.leftSpeed);
+			leftSpeed = getSensorValueStore().getSensorValueInt(SensorType.leftSpeed);
 			break;
 		default:
 			LOGGER.error("Unhandled command type: " + commandParts[0]);

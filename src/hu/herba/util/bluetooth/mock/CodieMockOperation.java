@@ -29,19 +29,7 @@ import hu.herba.util.codie.model.DataPackage;
  *
  */
 public class CodieMockOperation implements Operation {
-	/**
-	 *
-	 */
-	private static final int MAX_LIGHT = 4000;
-
-	/**
-	 *
-	 */
-	private static final int MIN_LIGHT = 500;
-
 	private static final Logger LOGGER = LogManager.getLogger(CodieMockOperation.class);
-
-	private static final long IMMEDIATE = 100; // 0.1 sec
 
 	private final String type;
 	private InputStream inputStream;
@@ -56,6 +44,9 @@ public class CodieMockOperation implements Operation {
 
 	private static final int MIN_DIST = 20;
 	private static final int MAX_DIST = 100;
+	private static final int MAX_LIGHT = 4000;
+	private static final int MIN_LIGHT = 500;
+	private static final long IMMEDIATE = 100; // 0.1 sec
 
 	/**
 	 * @param headerSet
@@ -341,7 +332,7 @@ public class CodieMockOperation implements Operation {
 	private int handleBatteryGetSoc(final byte[] dataPackage) {
 		LOGGER.trace("BATTERY");
 		pack.prepareResponse(dataPackage, 1);
-		pack.addArgument((int) ((System.currentTimeMillis() / 3000) % 100), ArgumentType.U8);
+		pack.addArgument(getRandomValue(0, 100), ArgumentType.U8);
 		setResponseTimeout(IMMEDIATE);
 		return 0;
 	}

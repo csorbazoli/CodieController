@@ -67,7 +67,7 @@ public class DataPackageTest {
 		Assert.assertEquals(0x00, actual[2]); // seq/2
 		Assert.assertEquals(0x60, actual[3]); // cmd/1
 		Assert.assertEquals((byte) 0x90, actual[4]); // cmd/2
-		Assert.assertEquals(0x01, actual[5]); // arglen/1
+		Assert.assertEquals(0x03, actual[5]); // arglen/1 = 1+2
 		Assert.assertEquals(0x0, actual[6]); // arglen/2
 		Assert.assertEquals(0x12, actual[7]); // reqseq/1
 		Assert.assertEquals(0x34, actual[8]); // reqseq/2
@@ -93,6 +93,17 @@ public class DataPackageTest {
 		Assert.assertEquals(0x0, actual[6]); // arglen/2
 		Assert.assertEquals(0x34, actual[7]); // reqseq/1
 		Assert.assertEquals(0x12, actual[8]); // reqseq/2
+	}
+
+	@Test
+	public void testReadResponseSequence() {
+		// given
+		DataPackage.resetSequence();
+		underTest.prepareResponse(codieCommand, 0x1234, 3);
+		// when
+		int actual = underTest.readResponseSequence();
+		// then
+		Assert.assertEquals(0x1234, actual);
 	}
 
 	/**

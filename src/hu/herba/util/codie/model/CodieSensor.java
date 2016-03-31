@@ -13,16 +13,9 @@ import hu.herba.util.codie.SensorValueStore;
 public interface CodieSensor extends CodieCommandBase {
 	/**
 	 * @param sensorValueStore
-	 */
-	void poll(SensorValueStore sensorValueStore);
-
-	/**
-	 * Process response from Codie robot.
-	 *
-	 * @param response
 	 * @throws CodieCommandException
 	 */
-	void processResponse(DataPackage response) throws CodieCommandException;
+	void poll(SensorValueStore sensorValueStore) throws CodieCommandException;
 
 	/**
 	 * @return type of sensor

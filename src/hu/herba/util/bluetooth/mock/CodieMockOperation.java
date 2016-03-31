@@ -18,6 +18,7 @@ import javax.obex.Operation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import hu.herba.util.codie.CodieCommandProcessor;
 import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandBase;
 import hu.herba.util.codie.model.CodieCommandType;
@@ -320,7 +321,7 @@ public class CodieMockOperation implements Operation {
 	private int handleBatteryGetSoc(final byte[] dataPackage) {
 		LOGGER.info("BATTERY");
 		pack.prepareResponse(dataPackage, 1);
-		pack.addArgument((int) (System.currentTimeMillis() / 3000 % 100), ArgumentType.U8);
+		pack.addArgument((int) ((System.currentTimeMillis() / 3000) % 100), ArgumentType.U8);
 		setResponseTimeout(IMMEDIATE);
 		return 0;
 	}
@@ -357,7 +358,7 @@ public class CodieMockOperation implements Operation {
 		}
 		CodieCommandType ret = null;
 		// only Null and Echo commands are handled!
-		int cmdByte = dataPackage[3] << 8 & dataPackage[4];
+		int cmdByte = (dataPackage[3] << 8) & dataPackage[4];
 		switch (cmdByte) {
 		case 0x00: // Null command
 			ret = CodieCommandType.Null;
@@ -455,21 +456,22 @@ public class CodieMockOperation implements Operation {
 		int prio = infoByte & 0x0f;
 		switch (prio) {
 		case 0: // normal
-			LOGGER.debug("Prio: NORMAL");
+			LOGGER.trace("Prio: NORMAL");
 			break;
 		case 8: // high
-			LOGGER.debug("Prio: HIGH");
+			LOGGER.trace("Prio: HIGH");
 			break;
 		default:
 			LOGGER.warn("Invalid INFO byte (0x" + Integer.toHexString(infoByte) + ")! Priority should use only the P3 bit!");
 		}
 		int seq = (dataPackage[2] << 8) + dataPackage[1];
-		LOGGER.debug("Sequence: " + seq);
+		LOGGER.trace("Sequence: " + seq);
 		return dest;
 	}
 
 	protected void sendResponse() {
-		// TODO send back dataPackage constructed by command handler methods
+		// send back dataPackage constructed by command handler methods
+		CodieCommandProcessor.getInstance().processResponse(pack.getPackage());
 	}
 
 	/**

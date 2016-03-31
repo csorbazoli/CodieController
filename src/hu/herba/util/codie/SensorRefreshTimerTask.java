@@ -5,6 +5,9 @@ package hu.herba.util.codie;
 
 import java.util.TimerTask;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import hu.herba.util.codie.model.CodieSensor;
 
 /**
@@ -14,6 +17,7 @@ import hu.herba.util.codie.model.CodieSensor;
  */
 public class SensorRefreshTimerTask extends TimerTask {
 
+	private static final Logger LOGGER = LogManager.getLogger(SensorRefreshTimerTask.class);
 	private final CodieSensor sensor;
 	private final SensorValueStore sensorValueStore;
 
@@ -28,7 +32,11 @@ public class SensorRefreshTimerTask extends TimerTask {
 
 	@Override
 	public void run() {
-		sensor.poll(sensorValueStore);
+		try {
+			sensor.poll(sensorValueStore);
+		} catch (CodieCommandException e) {
+			LOGGER.error("Failed to poll sensor value:" + e.getMessage(), e);
+		}
 	}
 
 }

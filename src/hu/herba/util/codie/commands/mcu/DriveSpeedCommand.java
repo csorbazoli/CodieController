@@ -46,9 +46,9 @@ public class DriveSpeedCommand extends MCUCommand {
 			LOGGER.error("Unhandled command type: " + commandParts[0]);
 		}
 		// then revert speed values as Codie stops
-		int ret = pack.prepareRequest(this, 2);
-		pack.addArgument(leftSpeed, ArgumentType.I8); // leftSpeed
-		pack.addArgument(rightSpeed, ArgumentType.I8); // rightSpeed
+		int ret = request.prepareRequest(this, 2);
+		request.addArgument(leftSpeed, ArgumentType.I8); // leftSpeed
+		request.addArgument(rightSpeed, ArgumentType.I8); // rightSpeed
 		if (sendCommand() == 0) {
 			// update leftSpeed/rightSpeed values
 			getSensorValueStore().updateSensorValue(SensorType.leftSpeed, leftSpeed);

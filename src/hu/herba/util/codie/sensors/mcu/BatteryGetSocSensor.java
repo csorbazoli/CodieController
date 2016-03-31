@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.CodieCommandException;
-import hu.herba.util.codie.SensorValueStore;
 import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandType;
 import hu.herba.util.codie.model.DataPackage;
@@ -44,12 +43,6 @@ public class BatteryGetSocSensor extends MCUSensor {
 		if (instance == null) {
 			instance = new BatteryGetSocSensor();
 		}
-	}
-
-	@Override
-	public void poll(final SensorValueStore sensorValueStore) {
-		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
-		sensorValueStore.updateSensorValue(SensorType.batterySensor, 100);
 	}
 
 	@Override

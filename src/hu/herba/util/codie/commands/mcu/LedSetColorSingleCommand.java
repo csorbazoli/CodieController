@@ -36,11 +36,11 @@ public class LedSetColorSingleCommand extends MCUCommand {
 		int ledMask = 1 << (ledIndex - 1);
 		String colorName = getStringParam(commandParts, 1, "green");
 		CodieColors color = CodieColors.valueOf(colorName);
-		int ret = pack.prepareRequest(this, 5);
-		pack.addArgument(ledMask, ArgumentType.U16); // one of the first 12 bits is 1
-		pack.addArgument(color.getHue(), ArgumentType.U8); // hue
-		pack.addArgument(color.getSaturation(), ArgumentType.U8); // saturation
-		pack.addArgument(color.getValue(), ArgumentType.U8); // value
+		int ret = request.prepareRequest(this, 5);
+		request.addArgument(ledMask, ArgumentType.U16); // one of the first 12 bits is 1
+		request.addArgument(color.getHue(), ArgumentType.U8); // hue
+		request.addArgument(color.getSaturation(), ArgumentType.U8); // saturation
+		request.addArgument(color.getValue(), ArgumentType.U8); // value
 		sendCommand();
 		return ret;
 	}

@@ -19,6 +19,16 @@ public class DataPackage {
 	private int packageLength = 0;
 	private static int seq = 0;
 
+	public DataPackage() {
+		// empty constructor
+	}
+
+	public DataPackage(final byte[] data) {
+		for (int i = 0; i < data.length; i++) {
+			dataPackage[i] = data[i];
+		}
+	}
+
 	private static int getNextSequenceNumber() {
 		int ret = ++seq;
 		if (ret > 0xFFFF) {
@@ -69,8 +79,8 @@ public class DataPackage {
 		dataPackage[packageLength++] = requestPack[3];
 		dataPackage[packageLength++] = (byte) (requestPack[4] | 0x0080); // set MSB = 1
 		// ARGLEN (16 bits)
-		dataPackage[packageLength++] = (byte) (argLen & 0x00FF);
-		dataPackage[packageLength++] = (byte) ((argLen & 0x0FF00) >> 8);
+		dataPackage[packageLength++] = (byte) ((argLen + 2) & 0x00FF);
+		dataPackage[packageLength++] = (byte) (((argLen + 2) & 0x0FF00) >> 8);
 		// ARGDAT - first 2 bytes = request sequence
 		dataPackage[packageLength++] = requestPack[1];
 		dataPackage[packageLength++] = requestPack[2];
@@ -122,6 +132,12 @@ public class DataPackage {
 	 */
 	public byte[] getPackage() {
 		return Arrays.copyOf(dataPackage, packageLength);
+	}
+
+	public int readResponseSequence() {
+		int ret = dataPackage[ARG_POS - 2] & 0x00FF;
+		ret = ret + ((dataPackage[ARG_POS - 1] & 0x00FF) << 8);
+		return ret;
 	}
 
 	/**

@@ -21,7 +21,7 @@ public class NullCommand extends MCUCommand {
 	@Override
 	public int processRequest(final String[] commandParts) throws CodieCommandException {
 		LOGGER.info("Processing " + getClass().getSimpleName() + ": nothing to do");
-		int ret = pack.prepareRequest(this, 2);
+		int ret = request.prepareRequest(this, 2);
 		sendCommand();
 		return ret;
 	}

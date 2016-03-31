@@ -25,31 +25,31 @@ import hu.herba.util.codie.SensorValueStore;
 public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comparable<CodieCommandBase> {
 
 	// basic methods will be implemented here
-	protected final DataPackage pack = new DataPackage();
+	protected final DataPackage request = new DataPackage();
 
-	protected byte[] getDataPackage() {
+	protected byte[] getRequestDataPackage() {
 		// return only the relevant part
-		return pack.getPackage();
-
+		return request.getPackage();
 	}
 
 	protected int sendCommand() throws CodieCommandException {
 		int ret = 0;
 		try {
 			// push data on channel
-			ret = sendByteArray(CodieBluetoothConnectionFactory.connect(), getCommandType().getCommandName(), getDataPackage(), "binary");
-			// TODO wait for result and return it
+			ret = sendByteArray(CodieBluetoothConnectionFactory.connect(), getCommandType().getCommandName(), getRequestDataPackage(), "binary");
 		} catch (IOException e) {
 			throw new CodieCommandException(e.getMessage(), e);
 		}
-		getSensorValueStore().setLastResult(ret == 0);
+		if (this instanceof CodieCommand) {
+			getSensorValueStore().setLastResult(ret == 0);
+		} // don't need to set lastResult for sensor requests
 		return ret;
 	}
 
 	public int sendByteArray(final ClientSession clientSession, final String name, final byte[] data, final String type)
 			throws IOException, UnsupportedEncodingException {
 		int ret = 0;
-		getLogger().info("Send message: '" + name + "', with content '" + data + "' of type = " + type);
+		getLogger().trace("Send message: '" + name + "', with content '" + data + "' of type = " + type);
 		HeaderSet hsOperation = clientSession.createHeaderSet();
 		hsOperation.setHeader(HeaderSet.NAME, name);
 		hsOperation.setHeader(HeaderSet.TYPE, type);
@@ -89,7 +89,7 @@ public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comp
 	@Override
 	public boolean equals(final Object obj) {
 		boolean ret;
-		if (obj == null || !this.getClass().equals(obj.getClass())) {
+		if ((obj == null) || !this.getClass().equals(obj.getClass())) {
 			ret = false;
 		} else {
 			ret = getCommandType().equals(((CodieCommandBase) obj).getCommandType());

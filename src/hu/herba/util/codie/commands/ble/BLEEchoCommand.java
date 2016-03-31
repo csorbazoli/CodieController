@@ -27,7 +27,7 @@ public class BLEEchoCommand extends BLECommand {
 	@Override
 	public int processRequest(final String[] commandParts) throws CodieCommandException {
 		LOGGER.info("Processing " + getClass().getSimpleName() + ": send echo request");
-		int ret = pack.prepareRequest(this, 2);
+		int ret = request.prepareRequest(this, 2);
 		sendCommand();
 		return ret;
 	}

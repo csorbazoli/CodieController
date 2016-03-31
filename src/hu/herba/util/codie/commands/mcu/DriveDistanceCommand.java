@@ -34,10 +34,10 @@ public class DriveDistanceCommand extends MCUCommand {
 		Integer leftSpeed = getSensorValueStore().getSensorValueInt(SensorType.leftSpeed);
 		Integer rightSpeed = getSensorValueStore().getSensorValueInt(SensorType.rightSpeed);
 		// then revert speed values as Codie stops
-		int ret = pack.prepareRequest(this, 4);
-		pack.addArgument(distance, ArgumentType.U16);
-		pack.addArgument(leftSpeed, ArgumentType.I8); // leftSpeed
-		pack.addArgument(rightSpeed, ArgumentType.I8); // rightSpeed
+		int ret = request.prepareRequest(this, 4);
+		request.addArgument(distance, ArgumentType.U16);
+		request.addArgument(leftSpeed, ArgumentType.I8); // leftSpeed
+		request.addArgument(rightSpeed, ArgumentType.I8); // rightSpeed
 		// update leftSpeed/rightSpeed values
 		getSensorValueStore().updateSensorValue(SensorType.leftSpeed, leftSpeed);
 		getSensorValueStore().updateSensorValue(SensorType.rightSpeed, rightSpeed);

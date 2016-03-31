@@ -35,9 +35,9 @@ public class DriveTurnCommand extends MCUCommand {
 	public int processRequest(final String[] commandParts) throws CodieCommandException {
 		int degree = getIntParam(commandParts, 1, 5);
 		int speed = getIntParam(commandParts, 2, 5);
-		int ret = pack.prepareRequest(this, 3);
-		pack.addArgument(degree, ArgumentType.U16);
-		pack.addArgument(speed, ArgumentType.I8);
+		int ret = request.prepareRequest(this, 3);
+		request.addArgument(degree, ArgumentType.U16);
+		request.addArgument(speed, ArgumentType.I8);
 		// update leftSpeed/rightSpeed values
 		getSensorValueStore().updateSensorValue(SensorType.leftSpeed, speed);
 		getSensorValueStore().updateSensorValue(SensorType.rightSpeed, -speed);

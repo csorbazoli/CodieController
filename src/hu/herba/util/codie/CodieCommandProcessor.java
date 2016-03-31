@@ -6,10 +6,9 @@ package hu.herba.util.codie;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
@@ -26,6 +25,7 @@ import hu.herba.util.codie.commands.mcu.SetSensorRefreshIntervalCommand;
 import hu.herba.util.codie.commands.mcu.SpeakBeepCommand;
 import hu.herba.util.codie.model.CodieCommand;
 import hu.herba.util.codie.model.CodieCommandBase;
+import hu.herba.util.codie.model.DataPackage;
 import hu.herba.util.codie.model.SensorType;
 
 /**
@@ -38,8 +38,9 @@ public class CodieCommandProcessor {
 	private static final Logger LOGGER = LogManager.getLogger(CodieCommandProcessor.class);
 	private static CodieCommandProcessor instance;
 
-	private final Map<String, CodieCommand> commands = new TreeMap<>();
-	private final Set<Integer> busyCommands = Collections.synchronizedSet(new TreeSet<Integer>());
+	private final Map<String, Class<? extends CodieCommand>> commands = new TreeMap<>();
+	private final Map<Integer, CodieCommandBase> busyCommands = Collections.synchronizedMap(new TreeMap<Integer, CodieCommandBase>());
+	private final Map<Integer, CodieCommandBase> commandSeq2Command = Collections.synchronizedMap(new HashMap<Integer, CodieCommandBase>());
 	private boolean lastResult;
 
 	private CodieCommandProcessor() {
@@ -84,10 +85,10 @@ public class CodieCommandProcessor {
 	private void registerCommand(final CodieCommand command) {
 		String[] names = command.getCommandType().getCommandName().split(Pattern.quote(CodieCommandBase.SEPARATOR));
 		for (String name : names) {
-			CodieCommandBase curCommand = commands.get(name);
+			Class<? extends CodieCommandBase> curCommand = commands.get(name);
 			if (curCommand == null) {
-				commands.put(name, command);
-			} else if (curCommand.equals(command)) {
+				commands.put(name, command.getClass());
+			} else if (curCommand.equals(command.getClass())) {
 				LOGGER.warn("Command already registered: " + command);
 			} else {
 				LOGGER.error("Command name collision: " + command + " = " + curCommand + "!");
@@ -104,13 +105,38 @@ public class CodieCommandProcessor {
 			if ("reset_all".equals(commandName)) {
 				doResetAll();
 			} else {
-				CodieCommand command = commands.get(commandName);
-				if (command == null) {
-					LOGGER.warn("Unhandled command type: " + commandName);
-				} else {
-					processCommand(command, parts);
-					return;
+				CodieCommand command;
+				try {
+					command = commands.get(commandName).newInstance();
+					if (command == null) {
+						LOGGER.warn("Unhandled command type: " + commandName);
+					} else {
+						processCommand(command, parts);
+						return;
+					}
+				} catch (InstantiationException | IllegalAccessException e) {
+					throw new IOException("Failed to process command '" + commandName + "': " + e.getMessage(), e);
 				}
+			}
+		}
+	}
+
+	public void processResponse(final byte[] data) {
+		// TODO get byte[] array from Bluetooth connection and initialize DataPackage with that content
+		DataPackage response = new DataPackage(data);
+		// response.prepareResponse(getRequestDataPackage(), 4);
+		// response.addArgument(0, ArgumentType.U8);
+		// response.addArgument(0, ArgumentType.U16);
+		// response.addArgument(0, ArgumentType.U16);
+		int origSequence = response.readResponseSequence();
+		CodieCommandBase origCommand = commandSeq2Command.get(origSequence);
+		if (origCommand == null) {
+			LOGGER.warn("Original command not found for response with seq=" + origSequence + "!");
+		} else {
+			try {
+				origCommand.processResponse(response);
+			} catch (CodieCommandException e) {
+				LOGGER.error("Failed to process response for seq=" + origSequence + ": " + e.getMessage(), e);
 			}
 		}
 	}
@@ -120,9 +146,8 @@ public class CodieCommandProcessor {
 		if (command.isWait()) {
 			uniqueCommandId = Integer.parseInt(parts[1]);
 		}
-		commandStarted(command, uniqueCommandId);
 		try {
-			command.processRequest(parts);
+			commandStarted(command, uniqueCommandId, command.processRequest(parts));
 			setLastResult(true);
 		} catch (CodieCommandException e) {
 			LOGGER.warn("Failed to process Codie command: " + e.getMessage(), e);
@@ -167,7 +192,7 @@ public class CodieCommandProcessor {
 		// e.g. _busy 1427 1511 1600
 		if (!busyCommands.isEmpty()) {
 			StringBuilder busyInfo = new StringBuilder("_busy");
-			for (Integer msgId : busyCommands) {
+			for (Integer msgId : busyCommands.keySet()) {
 				busyInfo.append(' ').append(msgId);
 			}
 			if (busyInfo.length() > 5) {
@@ -188,11 +213,12 @@ public class CodieCommandProcessor {
 		out.append("lastResult " + lastResult + "\n");
 	}
 
-	public void commandStarted(final CodieCommandBase command, final Integer uniqueCommandId) {
+	public void commandStarted(final CodieCommandBase command, final Integer uniqueCommandId, final int commandSeq) {
 		LOGGER.trace("Command " + command.getCommandType() + " started " + (uniqueCommandId != null ? uniqueCommandId : ""));
 		if (uniqueCommandId != null) {
-			busyCommands.add(uniqueCommandId);
+			busyCommands.put(uniqueCommandId, command);
 		}
+		commandSeq2Command.put(commandSeq, command);
 	}
 
 	public void commandFinished(final CodieCommandBase command, final Integer uniqueCommandId) {

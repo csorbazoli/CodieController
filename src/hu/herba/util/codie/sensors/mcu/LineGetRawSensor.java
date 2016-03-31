@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.codie.CodieCommandException;
-import hu.herba.util.codie.SensorValueStore;
 import hu.herba.util.codie.model.ArgumentType;
 import hu.herba.util.codie.model.CodieCommandType;
 import hu.herba.util.codie.model.DataPackage;
@@ -44,13 +43,6 @@ public class LineGetRawSensor extends MCUSensor {
 		if (instance == null) {
 			instance = new LineGetRawSensor();
 		}
-	}
-
-	@Override
-	public void poll(final SensorValueStore sensorValueStore) {
-		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
-		sensorValueStore.updateSensorValue(SensorType.lineLeft, 116);
-		sensorValueStore.updateSensorValue(SensorType.lineRight, 214);
 	}
 
 	@Override

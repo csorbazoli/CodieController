@@ -32,8 +32,8 @@ public class SpeakBeepCommand extends MCUCommand {
 	public int processRequest(final String[] commandParts) throws CodieCommandException {
 		LOGGER.info("Processing " + getClass().getSimpleName() + "...");
 		int duration = (int) (getDoubleParam(commandParts, 1, 1) * 1000); // sec -> millis
-		int ret = pack.prepareRequest(this, 2);
-		pack.addArgument(Math.min(duration, MAX_DURATION), ArgumentType.U16);
+		int ret = request.prepareRequest(this, 2);
+		request.addArgument(Math.min(duration, MAX_DURATION), ArgumentType.U16);
 		sendCommand();
 		return ret;
 	}

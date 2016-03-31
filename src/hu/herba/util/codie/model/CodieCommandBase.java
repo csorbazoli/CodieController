@@ -3,6 +3,8 @@
  */
 package hu.herba.util.codie.model;
 
+import hu.herba.util.codie.CodieCommandException;
+
 /**
  * @author csorbazoli
  */
@@ -64,6 +66,14 @@ public interface CodieCommandBase {
 	 *         {@link CodieCommandType#getCommandId()} specifies the two byte integer that is known by Codie.
 	 */
 	CodieCommandType getCommandType();
+
+	/**
+	 * Process response from Codie robot.
+	 *
+	 * @param response
+	 * @throws CodieCommandException
+	 */
+	void processResponse(DataPackage response) throws CodieCommandException;
 
 	/**
 	 * @return sender byte

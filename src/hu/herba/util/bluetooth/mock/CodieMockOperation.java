@@ -10,7 +10,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Random;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.obex.HeaderSet;
 import javax.obex.Operation;
@@ -41,6 +44,7 @@ public class CodieMockOperation implements Operation {
 	private boolean aborted;
 	private final DataPackage pack = new DataPackage();
 	private static final Random rand = new Random(System.currentTimeMillis());
+	private static ResponseThread responseThread;
 
 	private static final int MIN_DIST = 20;
 	private static final int MAX_DIST = 100;
@@ -293,7 +297,7 @@ public class CodieMockOperation implements Operation {
 		LOGGER.trace("TURN....");
 		pack.prepareResponse(dataPackage, 1);
 		pack.addArgument(0, ArgumentType.U8);
-		setResponseTimeout(2000);
+		setResponseTimeout(3000);
 		return 0;
 	}
 
@@ -321,7 +325,7 @@ public class CodieMockOperation implements Operation {
 		LOGGER.trace("DISTANCE....");
 		pack.prepareResponse(dataPackage, 1);
 		pack.addArgument(0, ArgumentType.U8);
-		setResponseTimeout(2000);
+		setResponseTimeout(4000);
 		return 0;
 	}
 
@@ -486,27 +490,76 @@ public class CodieMockOperation implements Operation {
 		CodieCommandProcessor.getInstance().processResponse(pack.getPackage());
 	}
 
+	private static class ResponseThread implements Runnable {
+		private static final long RESPONSE_THREAD_TIMEOUT = 100;
+		private final SortedMap<Long, DataPackage> responseMap = Collections.synchronizedSortedMap(new TreeMap<Long, DataPackage>());
+		private boolean stop = false;
+
+		@Override
+		public void run() {
+			while (!stop) {
+				sendResponses();
+				waiting(RESPONSE_THREAD_TIMEOUT);
+			}
+		}
+
+		private void sendResponses() {
+			DataPackage nextPackage = responseMap.isEmpty() ? null : responseMap.get(responseMap.firstKey());
+			while ((nextPackage != null) && (nextPackage.getTimestamp() <= System.currentTimeMillis())) {
+				responseMap.remove(responseMap.firstKey());
+				LOGGER.debug("Send response: " + nextPackage.readResponseSequence());
+				// send back dataPackage constructed by command handler methods
+				CodieCommandProcessor.getInstance().processResponse(nextPackage.getPackage());
+				nextPackage = responseMap.isEmpty() ? null : responseMap.get(responseMap.firstKey());
+			}
+		}
+
+		public void stop() {
+			stop = true;
+		}
+
+		private synchronized void waiting(final long timeout) {
+			try {
+				wait(timeout);
+			} catch (InterruptedException e) {
+				LOGGER.trace("Waiting (" + timeout + ") interrupted: " + e.getMessage(), e);
+			}
+
+		}
+
+		/**
+		 * @param l
+		 * @param package1
+		 */
+		public void addResponse(final long timestamp, final DataPackage responsePackage) {
+			responsePackage.setTimestamp(timestamp);
+			// System.out.println("AddResponse: " + System.nanoTime() + " - " + responsePackage.readResponseSequence());
+			responseMap.put(System.nanoTime(), responsePackage);
+		}
+	}
+
 	/**
 	 * @param immediate2
 	 */
 	private void setResponseTimeout(final long timeout) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				waiting(timeout);
-				sendResponse();
-			}
+		if (responseThread == null) {
+			startResponseThread();
+		}
+		responseThread.addResponse(System.currentTimeMillis() + timeout, pack);
+	}
 
-			private synchronized void waiting(final long timeout) {
-				try {
-					wait(timeout);
-				} catch (InterruptedException e) {
-					LOGGER.warn("Waiting (" + timeout + ") interrupted: " + e.getMessage(), e);
-				}
+	public static synchronized void stopResponseThread() {
+		if (responseThread != null) {
+			responseThread.stop();
+			responseThread = null;
+		}
+	}
 
-			}
-		}).start();
-
+	private static synchronized void startResponseThread() {
+		if (responseThread == null) {
+			responseThread = new ResponseThread();
+			new Thread(responseThread).start();
+		}
 	}
 
 	private int getRandom(final int from, final int to) {

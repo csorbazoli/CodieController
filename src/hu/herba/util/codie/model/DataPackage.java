@@ -18,6 +18,7 @@ public class DataPackage {
 	private final byte[] dataPackage = new byte[20];
 	private int packageLength = 0;
 	private static int seq = 0;
+	private long timestamp;
 
 	public DataPackage() {
 		// empty constructor
@@ -167,6 +168,21 @@ public class DataPackage {
 			LOGGER.error("Unhandled argument type: " + argType);
 		}
 		return ret;
+	}
+
+	/**
+	 * @return the timestamp
+	 */
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	/**
+	 * @param timestamp
+	 *            the timestamp to set
+	 */
+	public void setTimestamp(final long timestamp) {
+		this.timestamp = timestamp;
 	}
 
 }

@@ -31,6 +31,7 @@ public class CodieMockClientSession implements ClientSession {
 	@Override
 	public void close() throws IOException {
 		LOGGER.info(CODIE_MOCK_CONNECTION + "close...");
+		CodieMockOperation.stopResponseThread();
 	}
 
 	@Override
@@ -54,6 +55,7 @@ public class CodieMockClientSession implements ClientSession {
 	@Override
 	public HeaderSet disconnect(final HeaderSet headerSet) throws IOException {
 		LOGGER.info(CODIE_MOCK_CONNECTION + "disconnect...");
+		CodieMockOperation.stopResponseThread();
 		return null;
 	}
 

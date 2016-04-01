@@ -10,10 +10,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import javax.obex.HeaderSet;
 import javax.obex.Operation;
@@ -492,7 +492,7 @@ public class CodieMockOperation implements Operation {
 
 	private static class ResponseThread implements Runnable {
 		private static final long RESPONSE_THREAD_TIMEOUT = 100;
-		private final SortedMap<Long, DataPackage> responseMap = Collections.synchronizedSortedMap(new TreeMap<Long, DataPackage>());
+		private final List<DataPackage> responses = Collections.synchronizedList(new ArrayList<DataPackage>());
 		private boolean stop = false;
 
 		@Override
@@ -504,13 +504,13 @@ public class CodieMockOperation implements Operation {
 		}
 
 		private void sendResponses() {
-			DataPackage nextPackage = responseMap.isEmpty() ? null : responseMap.get(responseMap.firstKey());
+			DataPackage nextPackage = responses.isEmpty() ? null : responses.get(0);
 			while ((nextPackage != null) && (nextPackage.getTimestamp() <= System.currentTimeMillis())) {
-				responseMap.remove(responseMap.firstKey());
-				LOGGER.debug("Send response: " + nextPackage.readResponseSequence());
+				responses.remove(0);
+				LOGGER.trace("Send response: " + nextPackage.readResponseSequence());
 				// send back dataPackage constructed by command handler methods
 				CodieCommandProcessor.getInstance().processResponse(nextPackage.getPackage());
-				nextPackage = responseMap.isEmpty() ? null : responseMap.get(responseMap.firstKey());
+				nextPackage = responses.isEmpty() ? null : responses.get(0);
 			}
 		}
 
@@ -533,8 +533,7 @@ public class CodieMockOperation implements Operation {
 		 */
 		public void addResponse(final long timestamp, final DataPackage responsePackage) {
 			responsePackage.setTimestamp(timestamp);
-			// System.out.println("AddResponse: " + System.nanoTime() + " - " + responsePackage.readResponseSequence());
-			responseMap.put(System.nanoTime(), responsePackage);
+			responses.add(responsePackage);
 		}
 	}
 

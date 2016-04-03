@@ -2124,7 +2124,7 @@ msgid "Set color: %m.colorMenu"
 msgstr "Szín legyen %m.colorMenu"
 
 msgid "Set color: %m.colorMenu of led %d.ledIndex"
-msgstr "%d.ledIndex led színe legyen %m.colorMenu"
+msgstr "Legyen %m.colorMenu a(z) %d.ledIndex led színe"
 
 	
 msgid "Drive: %n cm by speed %d.percentMenu%"

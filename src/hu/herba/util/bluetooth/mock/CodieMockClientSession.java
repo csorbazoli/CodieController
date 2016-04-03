@@ -4,6 +4,7 @@
 package hu.herba.util.bluetooth.mock;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,11 +17,13 @@ import javax.obex.Operation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import hu.herba.util.bluetooth.CodieClientSession;
+
 /**
  * @author zcsorba
  *
  */
-public class CodieMockClientSession implements ClientSession {
+public class CodieMockClientSession implements ClientSession, CodieClientSession {
 
 	private static final Logger LOGGER = LogManager.getLogger(CodieMockClientSession.class);
 	public static final String CODIE_MOCK_CONNECTION = "Codie mock connection: ";
@@ -100,6 +103,45 @@ public class CodieMockClientSession implements ClientSession {
 	public HeaderSet setPath(final HeaderSet headerSet, final boolean arg1, final boolean arg2) throws IOException {
 		LOGGER.trace(CODIE_MOCK_CONNECTION + "set path = " + headerSet + " [" + arg1 + ", " + arg2 + "]");
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see hu.herba.util.bluetooth.CodieClientSession#sendCommand(java.lang.String, byte[])
+	 */
+	@Override
+	public int sendCommand(final String commandName, final byte[] data) {
+		int ret = 0;
+		HeaderSet hsOperation = createHeaderSet();
+		hsOperation.setHeader(HeaderSet.NAME, commandName);
+		hsOperation.setHeader(HeaderSet.TYPE, "binary");
+		hsOperation.setHeader(HeaderSet.LENGTH, Long.valueOf(data.length));
+
+		// Create PUT Operation
+		try {
+			Operation putOperation = put(hsOperation);
+			OutputStream os;
+			os = putOperation.openOutputStream();
+			os.write(data);
+			os.close();
+			ret = putOperation.getResponseCode();
+			putOperation.close();
+		} catch (IOException e) {
+			LOGGER.error("Failed to send " + commandName + " to mock client: " + e.getMessage(), e);
+		}
+
+		return ret;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see hu.herba.util.bluetooth.CodieClientSession#isReady()
+	 */
+	@Override
+	public boolean isReady() {
+		return true;
 	}
 
 }

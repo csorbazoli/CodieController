@@ -7,12 +7,11 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
-import javax.obex.ClientSession;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
+import hu.herba.util.bluetooth.CodieClientSession;
 
 /**
  * Servlet implementation class CodieControllerDispatcher
@@ -20,7 +19,7 @@ import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
 public class CodieControllerDispatcher {
 	private static final Logger LOGGER = LogManager.getLogger(CodieControllerDispatcher.class);
 
-	private ClientSession conn;
+	private CodieClientSession conn;
 
 	/**
 	 * @see HttpServlet#HttpServlet()

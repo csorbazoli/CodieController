@@ -8,10 +8,6 @@ import java.util.List;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.RemoteDevice;
-import javax.microedition.io.Connector;
-import javax.obex.ClientSession;
-import javax.obex.HeaderSet;
-import javax.obex.ResponseCodes;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,16 +29,16 @@ public class CodieBluetoothConnectionFactory {
 
 	public static final String CODIE_MAC_ADDRESS = "FF0BC95A08C7";
 	// Codie has a custom BLE service with the following UUID: 52af0001-978a-628d-c845-0a104ca2b8dd
-	private static final String CODIE_BLE_SERVICE_UUID = "52af0001978a628dc8450a104ca2b8dd";
+	public static final String CODIE_BLE_SERVICE_UUID = "52af0001978a628dc8450a104ca2b8dd";
 	// In this service there are two characteristics:
-	private static final String CODIE_RX_CHARACTERISTICS = "{52af0002-978a-628d-c845-0a104ca2b8dd}";
+	public static final String CODIE_RX_CHARACTERISTICS = "52af0002978a628dc8450a104ca2b8dd";
 	// Codie receives commands through this characteristic. It is readable and writeable (write without response).
 	// Be aware, that only 20 bytes can be written at a time (due to the BLE packet payload limit).
-	private static final String CODIE_TX_CHARACTERISTICS = "{52af0003-978a-628d-c845-0a104ca2b8dd}";
+	public static final String CODIE_TX_CHARACTERISTICS = "52af0003978a628dc8450a104ca2b8dd";
 	// Codie sends commands through this characteristic.
 	// Readable and can be subscribed for notification (indication not supported).
 
-	private static ClientSession currentConnection;
+	private static CodieClientSession currentConnection;
 	private static long lastConnectionFailure = 0l;
 	private static String lastError;
 	private static int errorCounter = 0;
@@ -53,15 +49,15 @@ public class CodieBluetoothConnectionFactory {
 	 * @return Connection
 	 *
 	 */
-	public static synchronized ClientSession connect() {
-		if (currentConnection == null && retryTimeout()) {
+	public static synchronized CodieClientSession connect() {
+		if ((currentConnection == null) && retryTimeout()) {
 			if (lastError == null) {
 				LOGGER.debug("Open connection to codie...");
 			}
 			try {
 				currentConnection = openConnection();
 			} catch (CodieConnectionException e) {
-				if (lastError == null || !lastError.equals(e.getMessage())) {
+				if ((lastError == null) || !lastError.equals(e.getMessage())) {
 					lastError = e.getMessage();
 					LOGGER.warn("Failed to connect to Codie: " + e.getMessage(), e);
 				}
@@ -78,8 +74,8 @@ public class CodieBluetoothConnectionFactory {
 		return currentConnection;
 	}
 
-	private static ClientSession openConnection() throws CodieConnectionException {
-		ClientSession ret = null;
+	private static CodieClientSession openConnection() throws CodieConnectionException {
+		CodieClientSession ret = null;
 		if (Boolean.parseBoolean(System.getenv("MOCK_CODIE"))) {
 			ret = getMockSession();
 		} else {
@@ -87,31 +83,35 @@ public class CodieBluetoothConnectionFactory {
 			// UUID: 52af0001-978a-628d-c845-0a104ca2b8dd
 			// RX: {52af0002-978a-628d-c845-0a104ca2b8dd}
 			// TX: {52af0003-978a-628d-c845-0a104ca2b8dd} - not used yet
-			try {
-				RemoteDevice selectedDevice = selectDevice();
-				if (selectedDevice != null) {
-					String serviceUrl = selectService(selectedDevice, CODIE_BLE_SERVICE_UUID);
-					if (serviceUrl == null) {
-						ret = getMockSession();
-					} else {
-						ret = openSession(serviceUrl);
-					}
-				}
-			} catch (IOException | InterruptedException e) {
-				throw new CodieConnectionException(e);
-			} catch (Exception e) {
-				if (isMissingBluetoothStackException(e)) {
-					ret = getMockSession();
-				} else {
-					throw new CodieConnectionException(e);
-				}
-			}
+			ret = getStreamSession();
 		}
 		return ret;
 	}
 
-	private static ClientSession getMockSession() throws CodieConnectionException {
-		ClientSession codieMockClientSession = new CodieMockClientSession();
+	/**
+	 * @return
+	 */
+	private static CodieClientSession getStreamSession() {
+		CodieClientSession ret = null;
+		try {
+			RemoteDevice codieDevice = selectDevice(); // TCKAgentUtil.getRemoteDevice(CODIE_MAC_ADDRESS);
+			LOGGER.info("CodieDevice: " + codieDevice);
+			// UUID[] uArr = new UUID[] { new UUID(CODIE_BLE_SERVICE_UUID, false) };
+			// ServiceRecord[] serviceRecords = TCKAgentUtil.getServiceRecords(codieDevice.getBluetoothAddress(), uArr);
+			// LOGGER.info("ServiceRecords found: " + serviceRecords);
+			// CODIE_BLE_SERVICE_UUID
+			CodieSessionThread thread = new CodieSessionThread("Codie", codieDevice.getBluetoothAddress(), CODIE_RX_CHARACTERISTICS, CODIE_TX_CHARACTERISTICS,
+					"5000");
+			thread.start();
+			ret = thread;
+		} catch (Exception e) {
+			LOGGER.warn("Failed to connect to Codie: " + e.getMessage(), e);
+		}
+		return ret;
+	}
+
+	private static CodieClientSession getMockSession() throws CodieConnectionException {
+		CodieMockClientSession codieMockClientSession = new CodieMockClientSession();
 		try {
 			codieMockClientSession.connect(null);
 		} catch (IOException e) {
@@ -121,7 +121,7 @@ public class CodieBluetoothConnectionFactory {
 	}
 
 	private static boolean isMissingBluetoothStackException(final Throwable e) {
-		if (e instanceof BluetoothStateException && "BluetoothStack not detected".equals(e.getMessage())) {
+		if ((e instanceof BluetoothStateException) && "BluetoothStack not detected".equals(e.getMessage())) {
 			return true;
 		} else if (e.getCause() != null) {
 			return isMissingBluetoothStackException(e.getCause());
@@ -136,8 +136,7 @@ public class CodieBluetoothConnectionFactory {
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	private static String selectService(final RemoteDevice selectedDevice, final String serviceUUID)
-			throws IOException, InterruptedException {
+	private static String selectService(final RemoteDevice selectedDevice, final String serviceUUID) throws IOException, InterruptedException {
 		String ret = null;
 		List<String> services;
 		int selected = 0;
@@ -171,7 +170,7 @@ public class CodieBluetoothConnectionFactory {
 				}
 			}
 		} while (selected <= 0);
-		if (selected > 0 && selected <= services.size()) {
+		if ((selected > 0) && (selected <= services.size())) {
 			ret = services.get(selected - 1);
 		}
 		return ret;
@@ -218,25 +217,8 @@ public class CodieBluetoothConnectionFactory {
 		// return ret;
 	}
 
-	/**
-	 * @param serverURL
-	 * @return
-	 * @throws IOException
-	 */
-	private static ClientSession openSession(final String serverURL) throws IOException {
-		LOGGER.info("Connecting to " + serverURL);
-
-		ClientSession clientSession = (ClientSession) Connector.open(serverURL);
-		HeaderSet hsConnectReply = clientSession.connect(null);
-		if (hsConnectReply.getResponseCode() != ResponseCodes.OBEX_HTTP_OK) {
-			LOGGER.error("Failed to connect: error code = " + hsConnectReply.getResponseCode());
-			return null;
-		}
-		return clientSession;
-	}
-
 	private static boolean retryTimeout() {
-		return System.currentTimeMillis() - lastConnectionFailure > RETRY_TIMEOUT;
+		return (System.currentTimeMillis() - lastConnectionFailure) > RETRY_TIMEOUT;
 	}
 
 }

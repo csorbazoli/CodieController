@@ -4,16 +4,12 @@
 package hu.herba.util.codie.model;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-
-import javax.obex.ClientSession;
-import javax.obex.HeaderSet;
-import javax.obex.Operation;
 
 import org.apache.logging.log4j.Logger;
 
 import hu.herba.util.bluetooth.CodieBluetoothConnectionFactory;
+import hu.herba.util.bluetooth.CodieClientSession;
 import hu.herba.util.codie.CodieCommandException;
 import hu.herba.util.codie.CodieSensorPollService;
 import hu.herba.util.codie.SensorValueStore;
@@ -37,7 +33,7 @@ public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comp
 		try {
 			getLogger().trace("SendCommand: " + toString() + "#" + hashCode());
 			// push data on channel
-			ret = sendByteArray(CodieBluetoothConnectionFactory.connect(), getCommandType().getCommandName(), getRequestDataPackage(), "binary");
+			ret = sendByteArray(CodieBluetoothConnectionFactory.connect(), getCommandType().getCommandName(), getRequestDataPackage());
 		} catch (IOException e) {
 			throw new CodieCommandException(e.getMessage(), e);
 		}
@@ -47,28 +43,13 @@ public abstract class AbstractCodieCommandBase implements CodieCommandBase, Comp
 		return ret;
 	}
 
-	public int sendByteArray(final ClientSession clientSession, final String name, final byte[] data, final String type)
-			throws IOException, UnsupportedEncodingException {
+	public int sendByteArray(final CodieClientSession clientSession, final String name, final byte[] data) throws IOException, UnsupportedEncodingException {
 		int ret = 0;
-		getLogger().trace("Send message: '" + name + "', with content '" + data + "' of type = " + type);
-		HeaderSet hsOperation = clientSession.createHeaderSet();
-		hsOperation.setHeader(HeaderSet.NAME, name);
-		hsOperation.setHeader(HeaderSet.TYPE, type);
-		hsOperation.setHeader(HeaderSet.LENGTH, Long.valueOf(data.length));
-
-		// Create PUT Operation
-		Operation putOperation = clientSession.put(hsOperation);
-		OutputStream os = putOperation.openOutputStream();
-		os.write(data);
-		os.close();
-
-		ret = putOperation.getResponseCode();
-		if (ret == 0) {
-
-		} else {
-			getLogger().warn("Response code failure: " + ret);
+		getLogger().trace("Send message: '" + name + "', with content '" + data + "'");
+		ret = clientSession.sendCommand(name, data);
+		if (ret != 0) {
+			getLogger().warn("Response code failure for " + name + ": " + ret);
 		}
-		putOperation.close();
 		return ret;
 	}
 
